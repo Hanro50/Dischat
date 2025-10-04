@@ -11,3 +11,21 @@ dependencies {
 	exclude module: 'tink'
 	}
 }
+
+configurations {
+        shadow_neoForge {
+			extendsFrom shadow
+
+tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+  dependencies {
+        exclude(dependency(":slf4j-api"))
+      exclude(dependency(":jackson-core"))
+	        exclude(dependency(":jackson-databind"))
+			   exclude(dependency(":jackson-annotations"))
+			  exclude(dependency(":gson"))
+  }
+}
+      
+		}
+}
+

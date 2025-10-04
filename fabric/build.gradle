@@ -8,7 +8,7 @@ version = project.mod_version
 group = project.maven_group
 
 base {
-	archivesName = project.archives_base_name
+	archivesName = project.mod_id
 }
 
 repositories {
@@ -35,10 +35,10 @@ dependencies {
     include( project(path: ':core', configuration: 'shadow'))
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation  "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation  "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 	
 }
@@ -77,7 +77,7 @@ jar {
 publishing {
 	publications {
 		create("mavenJava", MavenPublication) {
-			artifactId = project.archives_base_name
+			artifactId = project.mod_id
 			from components.java
 		}
 	}

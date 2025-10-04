@@ -6,13 +6,13 @@ license="${mod_license}"
 [[mods]] #mandatory
 
 # The modid of the mod
-modId="dischat_core" #mandatory
+modId="${mod_id}_core" #mandatory
 
 # The version number of the mod
 version="1.0.0" #mandatory
 
 # A display name for the mod
-displayName="${mod_id}-core" #mandatory
+displayName="${mod_name}-core" #mandatory
 
 # The description text for the mod (multi line!) (#mandatory)
 description='''${mod_description}'''

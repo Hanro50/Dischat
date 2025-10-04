@@ -1,32 +1,29 @@
 {
 	"schemaVersion": 1,
-	"id": "dischat",
-	"version": "${version}",
-	"name": "dischat",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"id": "${mod_id}",
+	"version": "${mod_version}",
+	"name": "${mod_name}",
+	"description": "${mod_description}",
 	"authors": [
-		"Me!"
+		"${mod_authors}"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
 		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
-	"license": "CC0-1.0",
+	"license": "${mod_license}",
 	"icon": "assets/dischat/icon.png",
-	"environment": "*",
+	"environment": "server",
 	"entrypoints": {
-		"main": [
+		"server": [
 			"za.net.hanro50.dischat.Dischat"
 		]
 	},
 	"mixins": [],
 	"depends": {
-		"fabricloader": ">=0.17.2",
-		"minecraft": "~1.21.9",
+		"fabricloader": ">=${fabric_loader_version}",
+		"minecraft": "~${minecraft_version}",
 		"java": ">=21",
-		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
+		"fabric-api": ">=${fabric_api_version}"
 	}
 }
