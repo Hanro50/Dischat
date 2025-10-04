@@ -15,6 +15,6 @@ public class Constants {
     public static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting()
             .create();
     public static final SecureRandom random = new SecureRandom();
-    public static final HttpClient client = HttpClient.newHttpClient();
+    public static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
 }

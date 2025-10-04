@@ -31,7 +31,7 @@ public class WebhookObjects {
                 .POST(HttpRequest.BodyPublishers.ofString(Constants.GSON.toJson(this)))
                 .build();
         try {
-            Constants.LOGGER.info(Constants.client.send(request, HttpResponse.BodyHandlers.ofString()).body());
+            Constants.LOGGER.info(Constants.HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString()).body());
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }

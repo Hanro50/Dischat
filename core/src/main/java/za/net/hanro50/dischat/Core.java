@@ -3,6 +3,7 @@ package za.net.hanro50.dischat;
 import java.io.File;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -33,6 +34,7 @@ public class Core {
     ApplicationInfo info;
     TextChannel channel;
     String webhookurl;
+    Lexicon lexicon;
 
     BiConsumer<Chater, String> onRespond;
 
@@ -159,7 +161,8 @@ public class Core {
                 .addOption(OptionType.BOOLEAN, "sure", "Are you sure you really wanna do this?").queue();
     }
 
-    public Core(Path path, BiConsumer<Chater, String> onChat) {
+    public Core(Path path, String mcVersion, BiConsumer<Chater, String> onChat) {
+        Constants.LOGGER.info("Configuring for minecraft: " + mcVersion);
         this.onRespond = onChat;
         File file = path.toFile();
 
@@ -172,6 +175,7 @@ public class Core {
         }
 
         config = Config.deserialize(new File(file, "config.json"));
+        lexicon = new Lexicon(mcVersion, config.lang);
         data = Data.deserialize(new File(file, "data.json"));
 
         if (config.token.length() < 5) {
@@ -262,11 +266,31 @@ public class Core {
     }
 
     public void sendDeath(Chater chater, Deathcause cause) {
+        Constants.LOGGER.info(cause.attacker);
         if (!active)
             return;
+        chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
+
+        if (cause.playerAttacker != null) {
+            cause.playerAttacker.discordID = data.MinecraftToDiscord.get(cause.playerAttacker.minecraftID);
+            if (cause.playerAttacker.discordID != null) {
+                Member member = channel.getGuild().retrieveMemberById(cause.playerAttacker.discordID).complete();
+                cause.playerAttacker.name = member.getEffectiveName();
+            }
+        }
+
+        else if (cause.name == null) {
+            if (cause.attacker == null) {
+                cause.name = "Herobrine";
+            } else {
+                cause.name = lexicon.retrieve(cause.attacker);
+            }
+        }
+
+        this.sendEmbed(chater, lexicon.retrieve(cause.cause), "#f89500", cause.name);
     }
 
-    public void sendEmbed(Chater chater, String text, String color) {
+    public void sendEmbed(Chater chater, String text, String color, String... options) {
         var name = chater.name;
         var pfp = "https://mc-heads.net/avatar/" + chater.minecraftID.toString();
         var link = "https://minecraftuuid.com/player/" + chater.minecraftID.toString();
@@ -280,8 +304,12 @@ public class Core {
                 ignore.printStackTrace();
             }
         }
+        List<Object> args = new ArrayList<>();
+        args.add(name);
+        for (String option : options)
+            args.add(option);
 
-        channel.sendMessageEmbeds(new EmbedBuilder().setAuthor(String.format(text, name), link, pfp)
+        channel.sendMessageEmbeds(new EmbedBuilder().setAuthor(String.format(text, args.toArray()), link, pfp)
                 .setColor(Color.decode(color)).build())
                 .queue();
     }
@@ -291,14 +319,14 @@ public class Core {
             return;
         }
         chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
-        sendEmbed(chater, "%s joined the game", "#04ff00");
+        sendEmbed(chater, lexicon.retrieve("multiplayer.player.joined"), "#04ff00");
     }
 
     public void sendLeave(Chater chater) {
         if (!active)
             return;
         chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
-        sendEmbed(chater, "%s left the game", "#ff0000");
+        sendEmbed(chater, lexicon.retrieve("multiplayer.player.left"), "#ff0000");
     }
 
 }

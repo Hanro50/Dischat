@@ -29,17 +29,18 @@ public class Dischat implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		Path path = FabricLoader.getInstance().getConfigDir();
+		String version = FabricLoader.getInstance().getRawGameVersion();
 		path = Path.of(new File(path.toFile(), Constants.MOD_ID).toURI());
-		Core core = new Core(path, (chater, message) -> {
+		Core core = new Core(path, version, (chater, message) -> {
 			if (server == null)
 				return;
 			PlayerChatMessage chatMessage;
 			String name = chater.name;
 			if (chater.minecraftID != null) {
 				UUID uuid = UUID.fromString(chater.minecraftID);
-				if (server.getProfileCache().get(uuid).isPresent()) {
-					GameProfile user = server.getProfileCache().get(uuid).get();
-					name = user.getName();
+				if (server.services().profileResolver().fetchById(uuid).isPresent()) {
+					GameProfile user = server.services().profileResolver().fetchById(uuid).get();
+					name = user.name();
 				}
 			}
 			chatMessage = PlayerChatMessage.system(message);
@@ -88,11 +89,11 @@ public class Dischat implements ModInitializer {
 					dc.cause += ".player";
 					Player player = (Player) attackerEntity;
 					dc.playerAttacker = new Chater(player.getStringUUID(), player.getName().getString());
+					dc.name = dc.playerAttacker.name;
 				} else {
-					dc.attacker = entity.getType().getDescriptionId();
-					Component name = entity.getCustomName();
-					if (name != null)
-						dc.name = name.toString();
+					dc.attacker = attackerEntity.getType().getDescriptionId();
+					if (attackerEntity.hasCustomName())
+						dc.name = attackerEntity.getCustomName().getString();
 				}
 			}
 

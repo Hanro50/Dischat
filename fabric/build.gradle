@@ -31,7 +31,7 @@ loom {
 }
 
 dependencies {
-	api(project(":core"))
+    api(project(":core"))
     include( project(path: ':core', configuration: 'shadow'))
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()

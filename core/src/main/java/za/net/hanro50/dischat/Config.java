@@ -14,7 +14,10 @@ public class Config {
     public String token = "";
 
     @Expose
-    String DO_NOT_CHANGE_VERSION = "1.0.0";
+    public String lang = "en_gb";
+
+    @Expose
+    String DO_NOT_CHANGE_VERSION = "1.0.1";
 
     public static Config deserialize(File file) {
         final Config result = new Config();
