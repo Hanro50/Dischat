@@ -77,27 +77,31 @@ public class Dischat implements ModInitializer {
 			if (!(entity instanceof Player))
 				return;
 
-			Chater victem = new Chater(entity.getStringUUID(), entity.getName().getString());
+			Thread.startVirtualThread(
+					() -> {
 
-			Deathcause dc = new Deathcause();
-			dc.cause = "death.attack." + damageSource.getMsgId();
+						Chater victem = new Chater(entity.getStringUUID(), entity.getName().getString());
 
-			Entity attackerEntity = damageSource.getEntity();
+						Deathcause dc = new Deathcause();
+						dc.cause = "death.attack." + damageSource.getMsgId();
 
-			if (attackerEntity != null) {
-				if (attackerEntity instanceof Player) {
-					dc.cause += ".player";
-					Player player = (Player) attackerEntity;
-					dc.playerAttacker = new Chater(player.getStringUUID(), player.getName().getString());
-					dc.name = dc.playerAttacker.name;
-				} else {
-					dc.attacker = attackerEntity.getType().getDescriptionId();
-					if (attackerEntity.hasCustomName())
-						dc.name = attackerEntity.getCustomName().getString();
-				}
-			}
+						Entity attackerEntity = damageSource.getEntity();
 
-			core.sendDeath(victem, dc);
+						if (attackerEntity != null) {
+							if (attackerEntity instanceof Player) {
+								dc.cause += ".player";
+								Player player = (Player) attackerEntity;
+								dc.playerAttacker = new Chater(player.getStringUUID(), player.getName().getString());
+								dc.name = dc.playerAttacker.name;
+							} else {
+								dc.attacker = attackerEntity.getType().getDescriptionId();
+								if (attackerEntity.hasCustomName())
+									dc.name = attackerEntity.getCustomName().getString();
+							}
+						}
+
+						core.sendDeath(victem, dc);
+					});
 		});
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {

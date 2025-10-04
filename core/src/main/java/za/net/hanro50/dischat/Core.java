@@ -28,7 +28,7 @@ import java.awt.Color;
 
 public class Core {
     JDA jda;
-    Data data;
+    public Data data;
     Config config;
     boolean active = false;
     ApplicationInfo info;

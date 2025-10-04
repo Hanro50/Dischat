@@ -31,10 +31,17 @@ bin/
 # fabric
 
 run/
-
 # java
 
 hs_err_*.log
 replay_*.log
 *.hprof
 *.jfr
+
+
+# Disable autocrlf on generated files, they always generate with LF
+# Add any extra files or paths here to make git stop saying they
+# are changed when only line endings change.
+neoforge/src/generated/**/.cache/cache text eol=lf
+neoforge/src/generated/**/*.json text eol=lf
+runs/

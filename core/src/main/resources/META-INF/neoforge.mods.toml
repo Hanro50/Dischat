@@ -1,0 +1,20 @@
+
+license="${mod_license}"
+
+
+# A list of mods - how many allowed here is determined by the individual mod loader
+[[mods]] #mandatory
+
+# The modid of the mod
+modId="dischat_core" #mandatory
+
+# The version number of the mod
+version="1.0.0" #mandatory
+
+# A display name for the mod
+displayName="${mod_id}-core" #mandatory
+
+# The description text for the mod (multi line!) (#mandatory)
+description='''${mod_description}'''
+
+modLoader="library"

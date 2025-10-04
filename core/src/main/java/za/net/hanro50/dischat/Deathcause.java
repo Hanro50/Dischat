@@ -1,10 +1,10 @@
 package za.net.hanro50.dischat;
 
 public class Deathcause {
-    String cause;
-    String attacker;
-    String name;
-    Chater playerAttacker;
+    public String cause;
+    public String attacker;
+    public String name;
+    public Chater playerAttacker;
 
     public Deathcause() {
     }

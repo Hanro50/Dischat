@@ -1,16 +1,16 @@
 package za.net.hanro50.dischat;
 
 public class Chater {
-    String minecraftID;
-    String name;
-    Long discordID;
+    public String minecraftID;
+    public String name;
+    public Long discordID;
 
-    Chater(String uuid, String name) {
+    public Chater(String uuid, String name) {
         this.minecraftID = uuid;
         this.name = name;
     }
 
-    Chater(Long id, String name) {
+    public Chater(Long id, String name) {
         this.discordID = id;
         this.name = name;
     }
