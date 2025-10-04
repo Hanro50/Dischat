@@ -19,7 +19,6 @@ classes/
 # vscode
 
 .settings/
-.vscode/
 bin/
 .classpath
 .project
@@ -44,4 +43,8 @@ replay_*.log
 # are changed when only line endings change.
 neoforge/src/generated/**/.cache/cache text eol=lf
 neoforge/src/generated/**/*.json text eol=lf
+forge/src/generated/**/.cache/cache text eol=lf
+forge/src/generated/**/*.json text eol=lf
 runs/
+# Files from Forge MDK
+forge*changelog.txt

@@ -5,27 +5,24 @@ plugins {
 
 dependencies {
 	implementation 'com.google.code.gson:gson:2.13.2'
-
 	implementation("net.dv8tion:JDA:6.0.0-preview_DEV") {
-	exclude module: 'opus-java'
-	exclude module: 'tink'
+    exclude module: 'opus-java'
+    exclude module: 'tink'
 	}
 }
 
 configurations {
-        shadow_neoForge {
-			extendsFrom shadow
-
-tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
-  dependencies {
+  shadow_forge {
+		extendsFrom shadow
+    tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+      dependencies {
         exclude(dependency(":slf4j-api"))
-      exclude(dependency(":jackson-core"))
-	        exclude(dependency(":jackson-databind"))
-			   exclude(dependency(":jackson-annotations"))
-			  exclude(dependency(":gson"))
+        exclude(dependency(":jackson-core"))
+        exclude(dependency(":jackson-databind"))
+        exclude(dependency(":jackson-annotations"))
+        exclude(dependency(":gson"))
+      }
+    }     
   }
-}
-      
-		}
 }
 
