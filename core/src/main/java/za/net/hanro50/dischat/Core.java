@@ -290,8 +290,7 @@ public class Core {
   }
 
   public void sendDeath(Chater chater, Deathcause cause) {
-    Constants.LOGGER.info(cause.attacker);
-    if (!active)
+    if (!active || !config.deathMessages)
       return;
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
 
@@ -339,7 +338,7 @@ public class Core {
   }
 
   public void sendJoin(Chater chater) {
-    if (!active) {
+    if (!active || !config.joinMessages) {
       return;
     }
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
@@ -347,10 +346,15 @@ public class Core {
   }
 
   public void sendLeave(Chater chater) {
-    if (!active)
+    if (!active || !config.leaveMessages)
       return;
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
     sendEmbed(chater, lexicon.retrieve("multiplayer.player.left"), "#ff0000");
+  }
+
+  public void sendAdvancement(Chater chater, String category, String advancement) {
+    if (!active || !config.advancementMessages)
+      return;
   }
 
 }
