@@ -1,6 +1,6 @@
 package za.net.hanro50.dischat;
 
-import net.fabricmc.api.ModInitializer;
+import net.fabricmc.api.DedicatedServerModInitializer;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -23,11 +23,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
-public class Dischat implements ModInitializer {
+public class Dischat implements DedicatedServerModInitializer {
 	MinecraftServer server;
 
 	@Override
-	public void onInitialize() {
+	public void onInitializeServer() {
 		Path path = FabricLoader.getInstance().getConfigDir();
 		String version = FabricLoader.getInstance().getRawGameVersion();
 		path = Path.of(new File(path.toFile(), Constants.MOD_ID).toURI());
