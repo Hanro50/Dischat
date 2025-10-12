@@ -36,10 +36,13 @@ public class Dischat implements DedicatedServerModInitializer {
 
   @Override
   public void onInitializeServer() {
+    if (Constants.core != null)
+      Constants.core.kill();
+
     Path path = FabricLoader.getInstance().getConfigDir();
     String version = FabricLoader.getInstance().getRawGameVersion();
     path = Path.of(new File(path.toFile(), Constants.MOD_ID).toURI());
-    Core core = new Core(path, version, (chater, message, links) -> {
+    Constants.core = new Core(path, version, (chater, message, links) -> {
       if (server == null)
         return;
       PlayerChatMessage chatMessage;
@@ -90,16 +93,16 @@ public class Dischat implements DedicatedServerModInitializer {
     ServerMessageEvents.CHAT_MESSAGE
         .register((PlayerChatMessage message, ServerPlayer player, ChatType.Bound type) -> {
           Thread.startVirtualThread(
-              () -> core.sendChat(new Chater(player.getStringUUID(), player.getName().getString()),
+              () -> Constants.core.sendChat(new Chater(player.getStringUUID(), player.getName().getString()),
                   message.decoratedContent().plainCopy().getString()));
         });
     ServerPlayerEvents.JOIN.register((ServerPlayer player) -> {
       Thread.startVirtualThread(
-          () -> core.sendJoin(new Chater(player.getStringUUID(), player.getName().getString())));
+          () -> Constants.core.sendJoin(new Chater(player.getStringUUID(), player.getName().getString())));
     });
     ServerPlayerEvents.LEAVE.register((ServerPlayer player) -> {
       Thread.startVirtualThread(
-          () -> core.sendLeave(new Chater(player.getStringUUID(), player.getName().getString())));
+          () -> Constants.core.sendLeave(new Chater(player.getStringUUID(), player.getName().getString())));
     });
 
     ServerLivingEntityEvents.AFTER_DEATH.register((entity, damageSource) -> {
@@ -140,7 +143,7 @@ public class Dischat implements DedicatedServerModInitializer {
               }
             }
 
-            core.sendDeath(victem, dc);
+            Constants.core.sendDeath(victem, dc);
           });
     });
 
@@ -149,7 +152,7 @@ public class Dischat implements DedicatedServerModInitializer {
         var source = context.getSource().getEntity();
         if (source instanceof ServerPlayer) {
           ServerPlayer player = (ServerPlayer) source;
-          core.data.requestLink(player.getStringUUID(), (code) -> {
+          Constants.core.data.requestLink(player.getStringUUID(), (code) -> {
             context.getSource().sendSystemMessage(Component.literal(
                 "Link code is <" + code + ">\nUse the /link command on the bot to complete linking"));
           });

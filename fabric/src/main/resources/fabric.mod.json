@@ -19,7 +19,7 @@
 			"za.net.hanro50.dischat.Dischat"
 		]
 	},
-	"mixins": [],
+	"mixins": ["dischat.mixins.json"],
 	"depends": {
 		"fabricloader": ">=${fabric_loader_version}",
 		"minecraft": "~${minecraft_version}",

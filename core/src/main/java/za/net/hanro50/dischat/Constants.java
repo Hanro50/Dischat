@@ -17,4 +17,5 @@ public class Constants {
   public static final SecureRandom random = new SecureRandom();
   public static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
+  public static Core core;
 }

@@ -357,4 +357,14 @@ public class Core {
       return;
   }
 
+  public void kill() {
+    if (jda != null)
+      try {
+        jda.awaitShutdown();
+      } catch (InterruptedException e) {
+
+        e.printStackTrace();
+      }
+  }
+
 }
