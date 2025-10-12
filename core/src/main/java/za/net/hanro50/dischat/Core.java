@@ -275,7 +275,7 @@ public class Core {
             cause.playerAttacker.discordID = data.MinecraftToDiscord.get(cause.playerAttacker.minecraftID);
             if (cause.playerAttacker.discordID != null) {
                 Member member = channel.getGuild().retrieveMemberById(cause.playerAttacker.discordID).complete();
-                cause.playerAttacker.name = member.getEffectiveName();
+                cause.name = member.getEffectiveName();
             }
         }
 
