@@ -27,6 +27,9 @@ import za.net.hanro50.dischat.core.Chater;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Deathcause;
 
+/**
+ * The core of every mod loaded based wrapper for MDCB (MC Discord chat Bridge)
+ */
 public class Universal {
   static MinecraftServer server;
 
