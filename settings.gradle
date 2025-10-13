@@ -27,7 +27,7 @@ plugins {
 }
 
 include 'core'
-include 'mixins'
+include 'common'
 include 'fabric'
 include 'neoforge'
 include 'forge'

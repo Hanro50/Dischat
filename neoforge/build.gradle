@@ -1,6 +1,5 @@
 plugins {
   id 'java-library'
-  id 'maven-publish'
   id 'net.neoforged.gradle.userdev' version '7.0.192'
 }
 
@@ -64,22 +63,7 @@ dependencies {
   jarJar(implementation(project(path:":core",configuration:"shadow_forge")))
   implementation(project(":core"))
 
-  compileOnly project(":mixins")
-}
-
-
-// Example configuration to allow publishing using the maven-publish plugin
-publishing {
-  publications {
-    register('mavenJava', MavenPublication) {
-      from components.java
-    }
-  }
-  repositories {
-    maven {
-      url "file://${project.projectDir}/repo"
-    }
-  }
+  compileOnly project(":common")
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -90,13 +74,13 @@ tasks.withType(JavaCompile).configureEach {
 Spec<Task> notNeoTask = { Task it -> !it.name.startsWith("neo") } as Spec<Task>
 
 tasks.withType(JavaCompile).matching(notNeoTask).configureEach {
-  source(project(":mixins").sourceSets.main.allSource)
+  source(project(":common").sourceSets.main.allSource)
 }
 
 tasks.withType(Javadoc).matching(notNeoTask).configureEach {
-  source(project(":mixins").sourceSets.main.allJava)
+  source(project(":common").sourceSets.main.allJava)
 }
 
 tasks.withType(ProcessResources).matching(notNeoTask).configureEach {
-  from(project(":mixins").sourceSets.main.resources)
+  from(project(":common").sourceSets.main.resources)
 }

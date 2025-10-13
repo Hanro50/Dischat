@@ -1,4 +1,5 @@
 plugins {
+  id 'java'
 	id 'fabric-loom' version "${loom_version}"
 	id 'maven-publish'
   id "com.gradleup.shadow" version "9.2.1" apply false
@@ -10,7 +11,16 @@ group = project.maven_group
 base {
 	archivesName = project.mod_id
 }
-
+sourceSets {
+  main {
+    java {
+      srcDirs("../common/src/main/java/")
+    }
+    resources {
+      srcDirs("../common/src/main/resources/")
+    }
+  }
+}
 repositories {
 	// Add repositories to retrieve artifacts from in here.
 	// You should only use this when depending on other mods because

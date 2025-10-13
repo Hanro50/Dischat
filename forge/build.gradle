@@ -143,7 +143,8 @@ dependencies {
   annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
 
-  compileOnly project(":mixins")
+  compileOnly project(":common")
+  compileOnly project(":core")
   testCompileOnly(compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}")))
   implementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixinextras_version}")) {
     jarJar.ranged(it, "[${mixinextras_version},)")
@@ -156,13 +157,13 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.withType(JavaCompile).configureEach {
   options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-  source(project(":mixins").sourceSets.main.allSource)
+  source(project(":common").sourceSets.main.allSource)
 }
 tasks.withType(Javadoc).configureEach {
-  source(project(":mixins").sourceSets.main.allJava)
+  source(project(":common").sourceSets.main.allJava)
 }
 processResources {
-  from project(":mixins").sourceSets.main.resources
+  from project(":common").sourceSets.main.resources
 }
 
 tasks.named('jar', Jar).configure {
