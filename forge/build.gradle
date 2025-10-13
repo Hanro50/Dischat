@@ -137,7 +137,7 @@ repositories {
 }
 
 dependencies {
-  minecraftLibrary(project(":core"))
+  minecraftLibrary(project(path:":core", configuration:"shadow_forge"))
   minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
   annotationProcessor 'net.minecraftforge:eventbus-validator:7.0-beta.10'
   annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'

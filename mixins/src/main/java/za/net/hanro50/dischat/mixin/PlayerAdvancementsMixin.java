@@ -13,8 +13,8 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
-import za.net.hanro50.dischat.Chater;
-import za.net.hanro50.dischat.Constants;
+import za.net.hanro50.dischat.core.Chater;
+import za.net.hanro50.dischat.core.Constants;
 
 @Mixin(PlayerAdvancements.class)
 public class PlayerAdvancementsMixin {
