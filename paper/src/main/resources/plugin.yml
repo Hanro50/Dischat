@@ -1,0 +1,9 @@
+name: ExamplePlugin
+version: 1.0.0
+main: za.net.hanro50.dischat.paper.DisChat
+description: An example plugin
+author: PaperMC
+website: https://papermc.io
+api-version: "1.21.8"
+libraries:
+  - net.dv8tion:JDA:6.0.0
