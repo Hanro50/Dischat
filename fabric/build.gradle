@@ -40,7 +40,8 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation  "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-	
+  implementation project(":mixins")
+
 }
 
 processResources {
@@ -89,4 +90,18 @@ publishing {
 		// The repositories here will be used for publishing your artifact, not for
 		// retrieving dependencies.
 	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+    source(project(":mixins").sourceSets.main.allSource)
+}
+tasks.withType(Javadoc).configureEach {
+    source(project(":mixins").sourceSets.main.allJava)
+}
+tasks.named("sourcesJar", Jar) {
+    from(project(":mixins").sourceSets.main.allSource)
+}
+
+processResources {
+    from project(":mixins").sourceSets.main.resources
 }

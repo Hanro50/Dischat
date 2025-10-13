@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat_forge;
+package za.net.hanro50.dischat.neoforge;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -25,32 +25,37 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import za.net.hanro50.dischat.ChatConsumer.Link;
-import za.net.hanro50.dischat.Chater;
-import za.net.hanro50.dischat.Constants;
-import za.net.hanro50.dischat.Core;
-import za.net.hanro50.dischat.Deathcause;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.ServerChatEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+
+import za.net.hanro50.dischat.core.ChatConsumer.Link;
+import za.net.hanro50.dischat.core.Chater;
+import za.net.hanro50.dischat.core.Constants;
+import za.net.hanro50.dischat.core.Core;
+import za.net.hanro50.dischat.core.Deathcause;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
-@Mod(value = Constants.MOD_ID)
-@Mod.EventBusSubscriber(modid = Constants.MOD_ID, value = Dist.DEDICATED_SERVER)
-public final class Dischat {
-  static Core core;
-  static MinecraftServer server;
+@Mod(value = Constants.MOD_ID, dist = Dist.DEDICATED_SERVER)
+public class Dischat {
+  ModContainer modContainer;
+  MinecraftServer server;
 
-  public Dischat(FMLJavaModLoadingContext context) {
+  public Dischat(IEventBus modEventBus, ModContainer modContainer) {
+    this.modContainer = modContainer;
+    NeoForge.EVENT_BUS.register(this);
+
   }
 
-  static private void broadcast(Chater chater, String message, Collection<Link> links) {
+  private void broadcast(Chater chater, String message, Collection<Link> links) {
     if (server == null)
       return;
     PlayerChatMessage chatMessage;
@@ -62,7 +67,6 @@ public final class Dischat {
         name = user.name();
       }
     }
-
     if (links.size() > 0) {
       chatMessage = PlayerChatMessage.system("");
 
@@ -86,9 +90,9 @@ public final class Dischat {
       chatMessage = PlayerChatMessage.system(message);
     }
     final var fname = name;
-    final var fchatMessage = chatMessage;
+    final var fchatmessage = chatMessage;
     server.getPlayerList().getPlayers().forEach((serverplayer) -> {
-      OutgoingChatMessage outgoingChatMessage = OutgoingChatMessage.create(fchatMessage);
+      OutgoingChatMessage outgoingChatMessage = OutgoingChatMessage.create(fchatmessage);
 
       ChatType.Bound bind = ChatType.bind(ChatType.CHAT, server.registryAccess(),
           Component.literal(fname));
@@ -98,16 +102,16 @@ public final class Dischat {
 
   @SubscribeEvent
   // Heals an entity by half a heart every time they jump.
-  static private void onChatEvent(ServerChatEvent event) {
+  private void onChatEvent(ServerChatEvent event) {
     ServerPlayer player = event.getPlayer();
     Thread.startVirtualThread(
-        () -> core.sendChat(new Chater(player.getStringUUID(), player.getName().getString()),
+        () -> Constants.core.sendChat(new Chater(player.getStringUUID(), player.getName().getString()),
             event.getMessage().plainCopy().getString()));
 
   }
 
   @SubscribeEvent
-  static private void onDeathEvent(LivingDeathEvent event) {
+  private void onDeathEvent(LivingDeathEvent event) {
     Entity entity = event.getEntity();
     DamageSource damageSource = event.getSource();
     if (!(entity instanceof Player))
@@ -135,13 +139,13 @@ public final class Dischat {
             }
           }
 
-          core.sendDeath(victem, dc);
+          Constants.core.sendDeath(victem, dc);
         });
   }
 
   // You can use SubscribeEvent and let the Event Bus discover methods to call
   @SubscribeEvent
-  static public void onServerStarting(ServerAboutToStartEvent event) {
+  public void onServerStarting(ServerAboutToStartEvent event) {
     server = event.getServer();
 
     Thread.startVirtualThread(
@@ -150,36 +154,36 @@ public final class Dischat {
               .info(event.getServer().getFile("config/" + Constants.MOD_ID).toAbsolutePath().toString());
 
           Path config = server.getFile("config/" + Constants.MOD_ID).toAbsolutePath();
-          core = new Core(config, server.getServerVersion(), Dischat::broadcast);
+          Constants.core = new Core(config, server.getServerVersion(), this::broadcast);
         });
 
   }
 
   @SubscribeEvent
-  static public void onJoin(PlayerEvent.PlayerLoggedInEvent event) {
+  public void onJoin(PlayerEvent.PlayerLoggedInEvent event) {
     Player player = event.getEntity();
 
     Thread.startVirtualThread(
-        () -> core.sendJoin(new Chater(player.getStringUUID(), player.getName().getString())));
+        () -> Constants.core.sendJoin(new Chater(player.getStringUUID(), player.getName().getString())));
   }
 
   @SubscribeEvent
-  static public void onLeave(PlayerEvent.PlayerLoggedOutEvent event) {
+  public void onLeave(PlayerEvent.PlayerLoggedOutEvent event) {
     Player player = event.getEntity();
 
     Thread.startVirtualThread(
-        () -> core.sendLeave(new Chater(player.getStringUUID(), player.getName().getString())));
+        () -> Constants.core.sendLeave(new Chater(player.getStringUUID(), player.getName().getString())));
   }
 
-  static public void register(CommandDispatcher<CommandSourceStack> dispatcher) {
+  public void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register(Commands.literal("linkme").executes((command) -> execute(command)));
   }
 
-  static private int execute(CommandContext<CommandSourceStack> command) {
+  private int execute(CommandContext<CommandSourceStack> command) {
     if (command.getSource().getEntity() instanceof ServerPlayer) {
       ServerPlayer player = (ServerPlayer) command.getSource().getEntity();
 
-      core.data.requestLink(player.getStringUUID(), (code) -> {
+      Constants.core.data.requestLink(player.getStringUUID(), (code) -> {
         player.sendSystemMessage(Component.literal(
             "Link code is <" + code + ">\nUse the /link command on the bot to complete linking"));
       });
@@ -188,7 +192,7 @@ public final class Dischat {
   }
 
   @SubscribeEvent
-  static public void registerCommands(RegisterCommandsEvent event) {
+  public void registerCommands(RegisterCommandsEvent event) {
     register(event.getDispatcher());
   }
 }

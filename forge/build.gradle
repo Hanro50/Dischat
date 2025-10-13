@@ -4,6 +4,7 @@ plugins {
   id 'maven-publish'
   id 'net.minecraftforge.gradle' version '[6.0.36,6.2)'
   id 'com.gradleup.shadow' version '9.2.1'
+  id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
 }
 
 version = mod_version
@@ -139,10 +140,37 @@ dependencies {
   minecraftLibrary(project(":core"))
   minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
   annotationProcessor 'net.minecraftforge:eventbus-validator:7.0-beta.10'
+  annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+
+
+  compileOnly project(":mixins")
+  testCompileOnly(compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}")))
+  implementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixinextras_version}")) {
+    jarJar.ranged(it, "[${mixinextras_version},)")
+  }
+}
+
+tasks.withType(JavaCompile).configureEach {
+
 }
 
 tasks.withType(JavaCompile).configureEach {
   options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+  source(project(":mixins").sourceSets.main.allSource)
+}
+tasks.withType(Javadoc).configureEach {
+  source(project(":mixins").sourceSets.main.allJava)
+}
+processResources {
+  from project(":mixins").sourceSets.main.resources
+}
+
+tasks.named('jar', Jar).configure {
+  manifest {
+    attributes([
+      "MixinConfigs" : "${mod_id}.mixins.json,${mod_id}.forge.mixins.json"
+    ])
+  }
 }
 
 // Merge the resources and classes into the same directory, because Java expects modules to be in a single directory.
@@ -152,4 +180,10 @@ sourceSets.each {
   def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
   it.output.resourcesDir = dir
   it.java.destinationDirectory = dir
+}
+
+mixin {
+    // MixinGradle Settings
+    add sourceSets.main, "${mod_id}.mixins.refmap.json"
+    config "${mod_id}.mixins.json"
 }

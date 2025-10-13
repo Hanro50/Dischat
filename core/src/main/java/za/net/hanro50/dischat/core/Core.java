@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat;
+package za.net.hanro50.dischat.core;
 
 import java.io.File;
 
@@ -25,7 +25,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import za.net.hanro50.dischat.ChatConsumer.Link;
+import za.net.hanro50.dischat.core.ChatConsumer.Link;
 
 import java.awt.Color;
 
@@ -87,7 +87,9 @@ public class Core {
           }
           parent.data.channel = event.getChannel().getId();
           parent.data.save();
+          setChannel(parent.data.channel);
           event.reply("Channel has been set!").queue();
+
           break;
 
         case "link":
@@ -355,6 +357,8 @@ public class Core {
   public void sendAdvancement(Chater chater, String category, String advancement) {
     if (!active || !config.advancementMessages)
       return;
+
+    Constants.LOGGER.info(category + "--" + advancement);
   }
 
   public void kill() {

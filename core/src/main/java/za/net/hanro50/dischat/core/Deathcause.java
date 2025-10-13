@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat;
+package za.net.hanro50.dischat.core;
 
 public class Deathcause {
   public String cause;

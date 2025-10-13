@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat;
+package za.net.hanro50.dischat.core;
 
 import java.net.http.HttpClient;
 import java.security.SecureRandom;

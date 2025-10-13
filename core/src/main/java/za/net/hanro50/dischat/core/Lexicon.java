@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat;
+package za.net.hanro50.dischat.core;
 
 import java.io.IOException;
 import java.net.URI;

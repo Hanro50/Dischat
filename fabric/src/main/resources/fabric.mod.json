@@ -16,7 +16,7 @@
 	"environment": "server",
 	"entrypoints": {
 		"server": [
-			"za.net.hanro50.dischat.Dischat"
+			"za.net.hanro50.dischat.fabric.Dischat"
 		]
 	},
 	"mixins": ["dischat.mixins.json"],

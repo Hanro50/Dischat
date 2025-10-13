@@ -31,13 +31,13 @@ runs {
 
     modSources {
       add project.sourceSets.main
-      add('core', project(':core').sourceSets.main) 
+      add('core', project(':core').sourceSets.main)
     }
   }
 
   server {
     systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-    argument '--nogui' 
+    argument '--nogui'
   }
 
   // This run config launches GameTestServer and runs all registered gametests, then exits.
@@ -63,6 +63,8 @@ dependencies {
   implementation "net.neoforged:neoforge:${neo_version}"
   jarJar(implementation(project(path:":core",configuration:"shadow_forge")))
   implementation(project(":core"))
+
+  compileOnly project(":mixins")
 }
 
 
@@ -84,3 +86,17 @@ tasks.withType(JavaCompile).configureEach {
   options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
+
+Spec<Task> notNeoTask = { Task it -> !it.name.startsWith("neo") } as Spec<Task>
+
+tasks.withType(JavaCompile).matching(notNeoTask).configureEach {
+  source(project(":mixins").sourceSets.main.allSource)
+}
+
+tasks.withType(Javadoc).matching(notNeoTask).configureEach {
+  source(project(":mixins").sourceSets.main.allJava)
+}
+
+tasks.withType(ProcessResources).matching(notNeoTask).configureEach {
+  from(project(":mixins").sourceSets.main.resources)
+}

@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat;
+package za.net.hanro50.dischat.fabric;
 
 import net.fabricmc.api.DedicatedServerModInitializer;
 
@@ -29,7 +29,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import za.net.hanro50.dischat.ChatConsumer.Link;
+import za.net.hanro50.dischat.core.Chater;
+import za.net.hanro50.dischat.core.Constants;
+import za.net.hanro50.dischat.core.Core;
+import za.net.hanro50.dischat.core.Deathcause;
+import za.net.hanro50.dischat.core.ChatConsumer.Link;
 
 public class Dischat implements DedicatedServerModInitializer {
   MinecraftServer server;
