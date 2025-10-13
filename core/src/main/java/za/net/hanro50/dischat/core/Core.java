@@ -357,8 +357,29 @@ public class Core {
   public void sendAdvancement(Chater chater, String category, String advancement) {
     if (!active || !config.advancementMessages)
       return;
-
-    Constants.LOGGER.info(category + "--" + advancement);
+    chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
+    var name = chater.name;
+    var pfp = "https://mc-heads.net/avatar/" + chater.minecraftID.toString();
+    var link = "https://minecraftuuid.com/player/" + chater.minecraftID.toString();
+    if (chater.discordID != null) {
+      try {
+        Member member = channel.getGuild().retrieveMemberById(chater.discordID).complete();
+        name = member.getEffectiveName();
+        link = "https://discord.com/users/" + chater.discordID;
+        pfp = member.getEffectiveAvatarUrl();
+      } catch (RuntimeException ignore) {
+        ignore.printStackTrace();
+      }
+    }
+    var color = Constants.getAdvancementColor(category);
+    var id = "advancements." + category + "." + advancement;
+    channel.sendMessageEmbeds(
+        new EmbedBuilder()
+            .setAuthor(name, link, pfp)
+            .setTitle(lexicon.retrieve(id + ".title"))
+            .setDescription(lexicon.retrieve(id + ".description"))
+            .setColor(Color.decode(color)).build())
+        .queue();
   }
 
   public void kill() {

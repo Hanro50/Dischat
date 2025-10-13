@@ -18,4 +18,22 @@ public class Constants {
   public static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
   public static Core core;
+
+  public static String getAdvancementColor(String category) {
+
+    switch (category) {
+      case "adventure":
+        return "#10A5FA";
+      case "end":
+        return "#800080";
+      case "husbandry":
+        return "#7e7e7e";
+      case "nether":
+        return "#aa1515";
+      case "story":
+        return "#fe8738";
+      default:
+        return "#0000ff";
+    }
+  }
 }
