@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +13,9 @@ import com.google.gson.annotations.Expose;
 
 public class Lexicon {
 
-  LanguageInfo info;
+  protected Map<String, LanguageInfo> info = new HashMap<>();
+
+  protected String lang = "en_us";
 
   static public class Manifests {
     static public class Latest {
@@ -59,42 +62,46 @@ public class Lexicon {
 
   static public class LanguageInfo {
     @Expose
-
     Map<String, String> map = new HashMap<>();
-
   }
 
-  Lexicon() {
+  protected Lexicon() {
   }
 
-  public String retrieve(String code) {
-    String[] arr = code.split("\\.");
+  public String retrieve(NamespaceContainer namespace) {
+
+    var language = info.get(namespace.origin);
+    if (language == null) {
+      Constants.LOGGER.warn("Could not find language for origin " + namespace.origin);
+      return namespace.path;
+    }
+    String[] arr = namespace.path.split("\\.");
     ArrayList<String> lst = new ArrayList<>();
     for (String a : arr)
       lst.add(a);
 
     do {
       var key = String.join(".", lst);
-      if (info.map.containsKey(key))
-        return info.map.get(key);
+      if (language.map.containsKey(key))
+        return language.map.get(key);
       lst.removeLast();
     } while (lst.size() > 0);
-    Constants.LOGGER.warn("Could not find " + code);
-    return code;
+    Constants.LOGGER.warn("Could not find " + namespace.origin + "::" + namespace.path);
 
+    return namespace.path;
   }
 
   public Lexicon(String version, String code) {
-
+    this.lang = code;
     try {
-      HttpRequest manifestRequest = HttpRequest.newBuilder()
+      var manifestRequest = HttpRequest.newBuilder()
           .uri(URI.create("https://launchermeta.mojang.com/mc/game/version_manifest_v2.json"))
           .header("Content-Type", "application/json")
           .GET()
           .build();
-      String manifestsResponse = Constants.HTTP_CLIENT.send(manifestRequest, HttpResponse.BodyHandlers.ofString())
+      var manifestsResponse = Constants.HTTP_CLIENT.send(manifestRequest, HttpResponse.BodyHandlers.ofString())
           .body();
-      Manifests manifests = Constants.GSON.fromJson(manifestsResponse, Manifests.class);
+      var manifests = Constants.GSON.fromJson(manifestsResponse, Manifests.class);
       Manifests.Version v;
       FindLang: {
         for (int i = 0; i < manifests.versions.length; i++) {
@@ -106,45 +113,45 @@ public class Lexicon {
         v = manifests.versions[0];
       }
 
-      HttpRequest gameInfoRequest = HttpRequest.newBuilder()
+      var gameInfoRequest = HttpRequest.newBuilder()
           .uri(URI.create(v.url))
           .header("Content-Type", "application/json")
           .GET()
           .build();
-      String gameInfoResponse = Constants.HTTP_CLIENT.send(gameInfoRequest, HttpResponse.BodyHandlers.ofString())
+      var gameInfoResponse = Constants.HTTP_CLIENT.send(gameInfoRequest, HttpResponse.BodyHandlers.ofString())
           .body();
-      GameInfo gameInfo = Constants.GSON.fromJson(gameInfoResponse, GameInfo.class);
+      var gameInfo = Constants.GSON.fromJson(gameInfoResponse, GameInfo.class);
 
-      HttpRequest assetIndexRequest = HttpRequest.newBuilder()
+      var assetIndexRequest = HttpRequest.newBuilder()
           .uri(URI.create(gameInfo.assetIndex.url))
           .header("Content-Type", "application/json")
           .GET()
           .build();
-      String assetIndexResponse = Constants.HTTP_CLIENT
+      var assetIndexResponse = Constants.HTTP_CLIENT
           .send(assetIndexRequest, HttpResponse.BodyHandlers.ofString())
           .body();
 
-      Assets assets = Constants.GSON.fromJson(assetIndexResponse, Assets.class);
+      var assets = Constants.GSON.fromJson(assetIndexResponse, Assets.class);
 
-      Assets.ObjectData data = assets.objects.get("minecraft/lang/" + code + ".json");
+      var data = assets.objects.get("minecraft/lang/" + code + ".json");
 
       if (data == null) {
         Constants.LOGGER.warn("SELECTED LANGUAGE IS INVALID");
         data = assets.objects.get("minecraft/lang/en_gb.json");
       }
-      HttpRequest languageJsonRequest = HttpRequest.newBuilder()
+      var languageJsonRequest = HttpRequest.newBuilder()
           .uri(URI.create(
               "https://resources.download.minecraft.net/" + data.hash.substring(0, 2) + "/" + data.hash))
           .header("Content-Type", "application/json")
           .GET()
           .build();
-      String languageJsonResponse = Constants.HTTP_CLIENT
+      var languageJsonResponse = Constants.HTTP_CLIENT
           .send(languageJsonRequest, HttpResponse.BodyHandlers.ofString())
           .body();
       Constants.LOGGER.info("Lang url: https://resources.download.minecraft.net/" + data.hash.substring(0, 2)
           + "/" + data.hash);
-      info = Constants.GSON.fromJson("{\"map\":" + languageJsonResponse + "}", LanguageInfo.class);
-
+      var mc = Constants.GSON.fromJson("{\"map\":" + languageJsonResponse + "}", LanguageInfo.class);
+      info.put("minecraft", mc);
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

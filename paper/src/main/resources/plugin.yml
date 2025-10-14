@@ -7,3 +7,9 @@ website: https://papermc.io
 api-version: "1.21.8"
 libraries:
   - net.dv8tion:JDA:6.0.0
+commands:
+  linkme:
+    description: Link your Discord and Minecraft Account
+    usage: /<command>
+    permission: dischat.link
+    default: true

@@ -30,12 +30,29 @@ public class PlayerAdvancementsMixin {
     advancementHolder.value().display().ifPresent((displayInfo) -> {
       if (!displayInfo.shouldAnnounceChat())
         return;
-      String[] parts = advancementHolder.id().toShortLanguageKey().split("/");
-      if (parts.length != 2 || Constants.core == null)
-        return;
+      String[] parts = advancementHolder.id().getPath().split("/");
+      String category;
+      String achievement;
+      String namespace = advancementHolder.id().getNamespace();
+      switch (parts.length) {
+        case 1:
+          category = namespace;
+          achievement = parts[0];
+          break;
+        case 2:
+          category = parts[0];
+          achievement = parts[1];
+          break;
+        default:
+        case 0:
+          Constants.LOGGER.error("Could not decode acheivement");
+          return;
+
+      }
+
       Chater chater = new Chater(this.player.getStringUUID(), this.player.getPlainTextName());
 
-      Constants.core.sendAdvancement(chater, parts[0], parts[1]);
+      Constants.core.sendAdvancement(chater, namespace, category, achievement);
     });
 
   }

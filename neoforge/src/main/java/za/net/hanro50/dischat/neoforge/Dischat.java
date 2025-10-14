@@ -1,9 +1,7 @@
 package za.net.hanro50.dischat.neoforge;
 
-import java.nio.file.Path;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -26,11 +24,11 @@ import za.net.hanro50.dischat.core.Core;
 @Mod(value = Constants.MOD_ID, dist = Dist.DEDICATED_SERVER)
 public class Dischat {
   ModContainer modContainer;
-  MinecraftServer server;
 
   public Dischat(IEventBus modEventBus, ModContainer modContainer) {
     this.modContainer = modContainer;
     NeoForge.EVENT_BUS.register(this);
+
   }
 
   @SubscribeEvent
@@ -51,14 +49,18 @@ public class Dischat {
   // You can use SubscribeEvent and let the Event Bus discover methods to call
   @SubscribeEvent
   public void onServerStarting(ServerAboutToStartEvent event) {
+    var server = event.getServer();
+
     Universal.setServer(server);
     Thread.startVirtualThread(
         () -> {
           Constants.LOGGER
               .info(event.getServer().getFile("config/" + Constants.MOD_ID).toAbsolutePath().toString());
 
-          Path config = server.getFile("config/" + Constants.MOD_ID).toAbsolutePath();
-          Constants.core = new Core(config, server.getServerVersion(), Universal::broadcastChatMessage);
+          var config = server.getFile("config/" + Constants.MOD_ID).toAbsolutePath();
+          Constants.core = new Core(config, Universal::broadcastChatMessage);
+          Constants.core.setLexicon(new NeoForgeLexicon(server.getServerVersion(), Constants.core.config.lang));
+
         });
 
   }

@@ -32,7 +32,7 @@ import java.awt.Color;
 public class Core {
   JDA jda;
   public Data data;
-  Config config;
+  public Config config;
   boolean active = false;
   ApplicationInfo info;
   TextChannel channel;
@@ -187,8 +187,12 @@ public class Core {
         .addOption(OptionType.BOOLEAN, "sure", "Are you sure you really wanna do this?").queue();
   }
 
-  public Core(Path path, String mcVersion, ChatConsumer onChat) {
-    Constants.LOGGER.info("Configuring for minecraft: " + mcVersion);
+  public void setLexicon(Lexicon lexicon) {
+    this.lexicon = lexicon;
+  }
+
+  public Core(Path path, ChatConsumer onChat) {
+
     this.onRespond = onChat;
     File file = path.toFile();
 
@@ -201,7 +205,7 @@ public class Core {
     }
 
     config = Config.deserialize(new File(file, "config.json"));
-    lexicon = new Lexicon(mcVersion, config.lang);
+
     data = Data.deserialize(new File(file, "data.json"));
 
     if (config.token.length() < 5) {
@@ -344,17 +348,17 @@ public class Core {
       return;
     }
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
-    sendEmbed(chater, lexicon.retrieve("multiplayer.player.joined"), "#04ff00");
+    sendEmbed(chater, lexicon.retrieve(NamespaceContainer.literal("multiplayer.player.joined")), "#04ff00");
   }
 
   public void sendLeave(Chater chater) {
     if (!active || !config.leaveMessages)
       return;
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
-    sendEmbed(chater, lexicon.retrieve("multiplayer.player.left"), "#ff0000");
+    sendEmbed(chater, lexicon.retrieve(NamespaceContainer.literal("multiplayer.player.left")), "#ff0000");
   }
 
-  public void sendAdvancement(Chater chater, String category, String advancement) {
+  public void sendAdvancement(Chater chater, String namespace, String category, String advancement) {
     if (!active || !config.advancementMessages)
       return;
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
@@ -372,12 +376,16 @@ public class Core {
       }
     }
     var color = Constants.getAdvancementColor(category);
+
     var id = "advancements." + category + "." + advancement;
+
+    var titleNS = new NamespaceContainer(namespace, id + ".title");
+    var descriptionNS = new NamespaceContainer(namespace, id + ".description");
     channel.sendMessageEmbeds(
         new EmbedBuilder()
             .setAuthor(name, link, pfp)
-            .setTitle(lexicon.retrieve(id + ".title"))
-            .setDescription(lexicon.retrieve(id + ".description"))
+            .setTitle(lexicon.retrieve(titleNS))
+            .setDescription(lexicon.retrieve(descriptionNS))
             .setColor(Color.decode(color)).build())
         .queue();
   }

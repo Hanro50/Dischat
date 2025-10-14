@@ -55,7 +55,9 @@ public final class Dischat {
               .info(event.getServer().getFile("config/" + Constants.MOD_ID).toAbsolutePath().toString());
 
           Path config = server.getFile("config/" + Constants.MOD_ID).toAbsolutePath();
-          Constants.core = new Core(config, server.getServerVersion(), Universal::broadcastChatMessage);
+          Constants.core = new Core(config, Universal::broadcastChatMessage);
+          Constants.core.setLexicon(new ForgeLexicon(server.getServerVersion(), Constants.core.config.lang));
+
         });
 
   }
@@ -73,6 +75,7 @@ public final class Dischat {
   static public void register(CommandDispatcher<CommandSourceStack> dispatcher) {
     dispatcher.register(Universal.linkMeCommand);
   }
+
   @SubscribeEvent
   static public void registerCommands(RegisterCommandsEvent event) {
     register(event.getDispatcher());

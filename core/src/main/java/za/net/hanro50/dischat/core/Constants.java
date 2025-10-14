@@ -32,6 +32,11 @@ public class Constants {
         return "#aa1515";
       case "story":
         return "#fe8738";
+      // modded advancements
+      case "mutantmonsters":
+        return "#00ff00";
+      case "twilightforest":
+        return "#00eb89ff";
       default:
         return "#0000ff";
     }

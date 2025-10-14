@@ -17,15 +17,18 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import za.net.hanro50.dischat.core.ChatConsumer.Link;
 import za.net.hanro50.dischat.core.Chater;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Deathcause;
+import za.net.hanro50.dischat.core.NamespaceContainer;
 
 /**
  * The core of every mod loaded based wrapper for MDCB (MC Discord chat Bridge)
@@ -97,18 +100,23 @@ public class Universal {
           Chater victem = new Chater(entity.getStringUUID(), entity.getName().getString());
 
           Deathcause dc = new Deathcause();
-          dc.cause = "death.attack." + damageSource.getMsgId();
+
+          dc.cause = new NamespaceContainer(damageSource.typeHolder().getRegisteredName().split(":")[0],
+              "death.attack." + damageSource.getMsgId());
 
           Entity attackerEntity = damageSource.getEntity();
 
           if (attackerEntity != null) {
             if (attackerEntity instanceof Player) {
-              dc.cause += ".player";
+              dc.cause.path += ".player";
               Player player = (Player) attackerEntity;
               dc.playerAttacker = new Chater(player.getStringUUID(), player.getName().getString());
               dc.name = dc.playerAttacker.name;
             } else {
-              dc.attacker = attackerEntity.getType().getDescriptionId();
+              ResourceLocation resourceLocation = EntityType.getKey(attackerEntity.getType());
+
+              dc.attacker = new NamespaceContainer(resourceLocation.getNamespace(),
+                  attackerEntity.getType().getDescriptionId());
               if (attackerEntity.hasCustomName())
                 dc.name = attackerEntity.getCustomName().getString();
             }
