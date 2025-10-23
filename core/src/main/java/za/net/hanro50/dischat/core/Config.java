@@ -11,6 +11,8 @@ import com.google.gson.annotations.Expose;
 
 public class Config {
   @Expose
+  public Boolean useGuildIcon = false;
+  @Expose
   public Boolean joinMessages = true;
   @Expose
   public Boolean leaveMessages = true;
@@ -25,7 +27,7 @@ public class Config {
   public String lang = "en_gb";
 
   @Expose
-  String DO_NOT_CHANGE_VERSION = "1.0.3";
+  String DO_NOT_CHANGE_VERSION = "1.0.5";
 
   public static Config deserialize(File file) {
     final Config result = new Config();
@@ -42,7 +44,7 @@ public class Config {
 
       result.token = config.token;
       result.lang = config.lang;
-
+      result.useGuildIcon = config.useGuildIcon;
       result.advancementMessages = config.advancementMessages;
       result.deathMessages = config.deathMessages;
       result.leaveMessages = config.leaveMessages;

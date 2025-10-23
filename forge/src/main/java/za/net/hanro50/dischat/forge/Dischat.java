@@ -57,7 +57,7 @@ public final class Dischat {
           Path config = server.getFile("config/" + Constants.MOD_ID).toAbsolutePath();
           Constants.core = new Core(config, Universal::broadcastChatMessage);
           Constants.core.setLexicon(new ForgeLexicon(server.getServerVersion(), Constants.core.config.lang));
-
+          Universal.setIconUpdateListener();
         });
 
   }

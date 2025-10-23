@@ -1,8 +1,16 @@
 package za.net.hanro50.dischat.common;
 
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.UUID;
+
+import javax.imageio.ImageIO;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -17,6 +25,7 @@ import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,6 +38,7 @@ import za.net.hanro50.dischat.core.Chater;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Deathcause;
 import za.net.hanro50.dischat.core.NamespaceContainer;
+import za.net.hanro50.dischat.mixin.MinecraftServerAccessor;
 
 /**
  * The core of every mod loaded based wrapper for MDCB (MC Discord chat Bridge)
@@ -36,8 +46,41 @@ import za.net.hanro50.dischat.core.NamespaceContainer;
 public class Universal {
   static MinecraftServer server;
 
+  public static void setStatusIcon(Path path) {
+    try {
+      BufferedImage bufferedImage = ImageIO.read(path.toFile());
+      BufferedImage outputImage = new BufferedImage(64, 64, bufferedImage.getType());
+      Graphics2D g2d = outputImage.createGraphics();
+      // Set rendering hints for better quality (optional, but recommended)
+      g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+      g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+      // Draw the input image onto the output image, scaling it
+      g2d.drawImage(bufferedImage, 0, 0, 64, 64, null);
+      // Dispose of the Graphics2D object to free up resources
+      g2d.dispose();
+
+      ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+      ImageIO.write(outputImage, "PNG", byteArrayOutputStream);
+
+      ((MinecraftServerAccessor) server)
+          .dischat$setStatusIcon(new ServerStatus.Favicon(byteArrayOutputStream.toByteArray()));
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  public static void setIconUpdateListener() {
+    Thread.startVirtualThread(
+        () -> Constants.core.addSetIconListener(path -> setStatusIcon(path)));
+  }
+
   public static void setServer(MinecraftServer server) {
     Universal.server = server;
+
   }
 
   public static void onChatEvent(ServerPlayer player, String message) {

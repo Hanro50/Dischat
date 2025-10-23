@@ -14,7 +14,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.chat.ChatType;
 
 import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import za.net.hanro50.dischat.common.Universal;
@@ -22,7 +21,6 @@ import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Core;
 
 public class Dischat implements DedicatedServerModInitializer {
-  MinecraftServer server;
 
   @Override
   public void onInitializeServer() {
@@ -35,7 +33,11 @@ public class Dischat implements DedicatedServerModInitializer {
     Constants.core = new Core(path, Universal::broadcastChatMessage);
     Constants.core.setLexicon(new FabricLexicon(version, Constants.core.config.lang));
 
-    ServerLifecycleEvents.SERVER_STARTED.register(Universal::setServer);
+    ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
+      Universal.setServer(server);
+      Universal.setIconUpdateListener();
+    });
+
     ServerMessageEvents.CHAT_MESSAGE
         .register((PlayerChatMessage message, ServerPlayer player, ChatType.Bound type) -> {
           Universal.onChatEvent(player, message.decoratedContent().getString());

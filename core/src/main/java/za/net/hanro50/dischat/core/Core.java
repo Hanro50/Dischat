@@ -5,6 +5,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Consumer;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -38,7 +40,7 @@ public class Core {
   TextChannel channel;
   String webhookurl;
   Lexicon lexicon;
-
+  Consumer<Path> icon;
   ChatConsumer onRespond;
 
   public class MessageReceiveListener extends ListenerAdapter {
@@ -273,6 +275,7 @@ public class Core {
 
     webhookurl = channel.createWebhook(Constants.MOD_ID).complete().getUrl();
     active = true;
+    updateIcon();
   }
 
   public void sendChat(Chater chater, String message) {
@@ -388,6 +391,25 @@ public class Core {
             .setDescription(lexicon.retrieve(descriptionNS))
             .setColor(Color.decode(color)).build())
         .queue();
+  }
+
+  public void updateIcon() {
+    if (!active || channel == null || icon == null || !config.useGuildIcon)
+      return;
+    Thread.startVirtualThread(
+        () -> {
+          try {
+            icon.accept(this.channel.getGuild().getIcon().downloadToPath().get());
+          } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+          }
+        });
+
+  }
+
+  public void addSetIconListener(Consumer<Path> icon) {
+    this.icon = icon;
+    updateIcon();
   }
 
   public void kill() {
