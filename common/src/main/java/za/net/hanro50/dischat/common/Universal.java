@@ -97,9 +97,9 @@ public class Universal {
           String name = chater.name;
           if (chater.minecraftID != null) {
             UUID uuid = UUID.fromString(chater.minecraftID);
-            if (server.services().profileResolver().fetchById(uuid).isPresent()) {
-              GameProfile user = server.services().profileResolver().fetchById(uuid).get();
-              name = user.name();
+            if (server.getProfileCache().get(uuid).isPresent()) {
+              GameProfile user = server.getProfileCache().get(uuid).get();
+              name = user.getName();
             }
           }
 

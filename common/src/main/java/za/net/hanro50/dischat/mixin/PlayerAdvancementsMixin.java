@@ -50,7 +50,7 @@ public class PlayerAdvancementsMixin {
 
       }
 
-      Chater chater = new Chater(this.player.getStringUUID(), this.player.getPlainTextName());
+      Chater chater = new Chater(this.player.getStringUUID(), this.player.getName().getString());
 
       Constants.core.sendAdvancement(chater, namespace, category, achievement);
     });
