@@ -6,7 +6,7 @@ version = project.mod_version
 group = project.maven_group
 
 base {
-	archivesName = project.mod_id
+	archivesName = project.mod_id+"-common"
 }
 
 minecraft {
@@ -31,12 +31,4 @@ dependencies {
   annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}")
 
   compileOnly(project(":core"))
-}
-
-processResources {
-	inputs.property "version", project.version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
-	}
 }
