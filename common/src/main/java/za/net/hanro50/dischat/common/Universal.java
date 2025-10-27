@@ -5,7 +5,6 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.UUID;
@@ -115,9 +114,9 @@ public class Universal {
                     ComponentUtils.formatAndSortList(links, (Link link) -> {
                       return Component.literal("[" + link.name + "]").withStyle((style) -> {
                         return style.withColor(ChatFormatting.GREEN)
-                            .withClickEvent(new ClickEvent.OpenUrl(URI.create(link.link)))
-                            .withHoverEvent(new HoverEvent.ShowText(
-                                Component.translatable("chat.link.open")))
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link.link))
+                            .withHoverEvent(
+                                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.link.open")))
                             .withInsertion(link.link);
                       });
                     })));

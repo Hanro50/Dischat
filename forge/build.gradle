@@ -2,9 +2,9 @@ plugins {
   id 'eclipse'
   id 'idea'
   id 'maven-publish'
-  id 'net.minecraftforge.gradle' version '[6.0.36,6.2)'
+  id 'net.minecraftforge.gradle' version '6.+'
+  id 'org.spongepowered.mixin' version '0.7.+'
   id 'com.gradleup.shadow' version '9.2.1'
-  id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
 }
 
 version = mod_version
@@ -137,14 +137,11 @@ repositories {
 }
 
 dependencies {
-  minecraftLibrary(project(path:":core", configuration:"shadow_forge"))
   minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-  annotationProcessor 'net.minecraftforge:eventbus-validator:7.0-beta.10'
   annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 
-
   compileOnly project(":common")
-  compileOnly project(":core")
+  implementation(project(":core"))
   testCompileOnly(compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}")))
   implementation(jarJar("io.github.llamalad7:mixinextras-forge:${mixinextras_version}")) {
     jarJar.ranged(it, "[${mixinextras_version},)")

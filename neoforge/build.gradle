@@ -30,7 +30,10 @@ runs {
 
     modSources {
       add project.sourceSets.main
-      add('core', project(':core').sourceSets.main)
+    }
+
+    dependencies {
+      runtime project(':core')
     }
   }
 

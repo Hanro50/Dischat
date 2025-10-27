@@ -13,7 +13,7 @@ import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
-import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import za.net.hanro50.dischat.common.Universal;
@@ -31,12 +31,12 @@ public final class Dischat {
 
   @SubscribeEvent
   // Heals an entity by half a heart every time they jump.
-  static private void onChatEvent(ServerChatEvent event) {
+  static public void onChatEvent(ServerChatEvent event) {
     Universal.onChatEvent(event.getPlayer(), event.getMessage().plainCopy().getString());
   }
 
   @SubscribeEvent
-  static private void onDeathEvent(LivingDeathEvent event) {
+  static public void onDeathEvent(LivingDeathEvent event) {
     Entity entity = event.getEntity();
     DamageSource damageSource = event.getSource();
     if (!(entity instanceof Player))
