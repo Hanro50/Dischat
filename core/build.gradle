@@ -2,7 +2,9 @@ plugins {
   id 'java'
   id 'com.gradleup.shadow' version '9.2.1'
 }
-
+base {
+	archivesName = project.mod_id+"-core"
+}
 dependencies {
 	implementation 'com.google.code.gson:gson:2.13.2'
 	implementation("net.dv8tion:JDA:6.0.0") {
@@ -15,11 +17,11 @@ configurations {
   shadow_forge {
 		extendsFrom shadow
     tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+      relocate 'com.google.errorprone', "internal.${project.mod_id}.com.google.errorprone"
+      relocate 'com.fasterxml.jackson', "internal.${project.mod_id}.com.fasterxml.jackson"
+      relocate 'kotlin', "internal.${project.mod_id}.kotlin"
       dependencies {
         exclude(dependency(":slf4j-api"))
-        exclude(dependency(":jackson-core"))
-        exclude(dependency(":jackson-databind"))
-        exclude(dependency(":jackson-annotations"))
         exclude(dependency(":gson"))
       }
     }

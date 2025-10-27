@@ -11,7 +11,7 @@ version = mod_version
 group = maven_group
 
 base {
-  archivesName = mod_id
+	archivesName = project.mod_id+"-forge"
 }
 
 // Mojang ships Java 21 to end users in 1.20.5+, so your mod should target Java 21.
@@ -98,13 +98,15 @@ minecraft {
   }
 }
 tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
+  relocate 'kotlin', "internal.${project.mod_id}.kotlin"
   dependencies {
     include(project(":core"))
-    exclude(dependency(":slf4j-api"))
-    exclude(dependency(":jackson-core"))
-	  exclude(dependency(":jackson-databind"))
-		exclude(dependency(":jackson-annotations"))
-	  exclude(dependency(":gson"))
+    include(dependency(":JDA"))
+    include(dependency(":nv-websocket-client"))
+    include(dependency(":okhttp-jvm"))
+    include(dependency(":commons-collections4"))
+    include(dependency("net.sf.trove4j:core"))
+    include(dependency(":kotlin-stdlib"))
   }
 }
 
