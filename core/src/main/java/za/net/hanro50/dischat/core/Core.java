@@ -299,6 +299,7 @@ public class Core {
   }
 
   public void sendDeath(Chater chater, Deathcause cause) {
+    var color = "#f89500";
     if (!active || !config.deathMessages)
       return;
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
@@ -316,10 +317,14 @@ public class Core {
         cause.name = "Herobrine";
       } else {
         cause.name = lexicon.retrieve(cause.attacker);
+        if (cause.attacker.path.equals("death.attack.badRespawnPoint.link")) {
+          cause.name = "[" + cause.name + "]";
+          color = "#ae00ff";
+        }
       }
     }
 
-    this.sendEmbed(chater, lexicon.retrieve(cause.cause), "#f89500", cause.name, cause.itemName);
+    this.sendEmbed(chater, lexicon.retrieve(cause.cause), color, cause.name, cause.itemName);
   }
 
   public void sendEmbed(Chater chater, String text, String color, String... options) {
