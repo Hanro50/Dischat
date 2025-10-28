@@ -4,7 +4,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -14,8 +13,8 @@ import za.net.hanro50.dischat.core.Constants;
 public class LinkMeCommand implements CommandExecutor {
 
   @Override
-  public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label,
-      @NotNull String[] args) {
+  public boolean onCommand(CommandSender sender, Command command, String label,
+      String[] args) {
     if (!(sender instanceof Player)) {
       Constants.LOGGER.warn("Can only be ran as a player :(");
       return false;

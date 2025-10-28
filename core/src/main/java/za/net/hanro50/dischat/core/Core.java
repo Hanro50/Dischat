@@ -378,12 +378,11 @@ public class Core {
         ignore.printStackTrace();
       }
     }
-    var color = Constants.getAdvancementColor(category);
+    Constants.LOGGER.info(category);
+    var color = Constants.AdvancementColorDict.getOrDefault(category, "#0000ff");
 
-    var id = "advancements." + category + "." + advancement;
-
-    var titleNS = new NamespaceContainer(namespace, id + ".title");
-    var descriptionNS = new NamespaceContainer(namespace, id + ".description");
+    var titleNS = new NamespaceContainer(namespace, advancement + ".title");
+    var descriptionNS = new NamespaceContainer(namespace, advancement + ".desc");
     channel.sendMessageEmbeds(
         new EmbedBuilder()
             .setAuthor(name, link, pfp)

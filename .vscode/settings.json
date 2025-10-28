@@ -6,5 +6,7 @@
   "files.trimTrailingWhitespace": true,
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
-  "editor.detectIndentation": false
+  "editor.detectIndentation": false,
+  "java.compile.nullAnalysis.mode": "disabled",
+  "java.search.scope": "all"
 }

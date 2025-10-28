@@ -29,7 +29,7 @@
       ],
       "vmArgs": [
         "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/clientRunVmArgs.txt",
-        "-Dfml.modFolders\u003ddischat%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/common/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
+        "-Dfml.modFolders\u003ddischat_core%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
       ],
       "cwd": "${workspaceFolder}/neoforge/run",
       "env": {},
@@ -51,7 +51,7 @@
       ],
       "vmArgs": [
         "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/dataRunVmArgs.txt",
-        "-Dfml.modFolders\u003ddischat%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/common/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
+        "-Dfml.modFolders\u003ddischat_core%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
       ],
       "cwd": "${workspaceFolder}/neoforge/run",
       "env": {},
@@ -73,7 +73,7 @@
       ],
       "vmArgs": [
         "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/gameTestServerRunVmArgs.txt",
-        "-Dfml.modFolders\u003ddischat%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/common/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
+        "-Dfml.modFolders\u003ddischat_core%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
       ],
       "cwd": "${workspaceFolder}/neoforge/run",
       "env": {},
@@ -95,7 +95,7 @@
       ],
       "vmArgs": [
         "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/serverRunVmArgs.txt",
-        "-Dfml.modFolders\u003ddischat%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/common/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
+        "-Dfml.modFolders\u003ddischat_core%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
       ],
       "cwd": "${workspaceFolder}/neoforge/run",
       "env": {},

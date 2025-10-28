@@ -16,6 +16,7 @@ public class NeoForgeLexicon extends Lexicon {
 
   protected void decode(Path path, String origin) throws IOException {
     String data = Files.readString(path);
+    Constants.LOGGER.info("Loaded " + data);
     var mc = Constants.GSON.fromJson("{\"map\":" + data + "}", LanguageInfo.class);
     info.put(origin, mc);
   }

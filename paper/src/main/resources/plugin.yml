@@ -1,10 +1,9 @@
-name: ExamplePlugin
+name: MDCB
 version: 1.0.0
 main: za.net.hanro50.dischat.paper.DisChat
-description: An example plugin
-author: PaperMC
-website: https://papermc.io
-api-version: "1.21.8"
+description: A Discord chat bridge.
+author: hanro50
+api-version: "1.21.1"
 libraries:
   - net.dv8tion:JDA:6.0.0
 commands:

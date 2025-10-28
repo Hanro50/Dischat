@@ -87,7 +87,8 @@ public class DisChat extends JavaPlugin implements Listener {
     }
     Player player = event.getPlayer();
 
-    Constants.core.sendAdvancement(new Chater(player.getUniqueId().toString(), player.getName()), "minecraft",
+    Constants.core.sendAdvancement(new Chater(player.getUniqueId().toString(),
+        player.getName()), "minecraft",
         advancement[0],
         advancement[1]);
 

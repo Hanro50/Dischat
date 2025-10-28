@@ -11,6 +11,8 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
 import za.net.hanro50.dischat.core.Chater;
@@ -28,31 +30,20 @@ public class PlayerAdvancementsMixin {
     if (!advancementprogress.isDone() || bl2)
       return;
     advancementHolder.value().display().ifPresent((displayInfo) -> {
-      if (!displayInfo.shouldAnnounceChat())
+      var nameholder = advancementHolder.value().name();
+      if (!displayInfo.shouldAnnounceChat() || !nameholder.isPresent())
         return;
+      var title = ((TranslatableContents) ((MutableComponent) ((TranslatableContents) nameholder.get().getContents())
+          .getArgs()[0]).getContents()).getKey();
       String[] parts = advancementHolder.id().getPath().split("/");
-      String category;
-      String achievement;
       String namespace = advancementHolder.id().getNamespace();
-      switch (parts.length) {
-        case 1:
-          category = namespace;
-          achievement = parts[0];
-          break;
-        case 2:
-          category = parts[0];
-          achievement = parts[1];
-          break;
-        default:
-        case 0:
-          Constants.LOGGER.error("Could not decode acheivement");
-          return;
-
-      }
+      String category = namespace;
+      if (parts.length > 1)
+        category += ":" + parts[0];
 
       Chater chater = new Chater(this.player.getStringUUID(), this.player.getName().getString());
+      Constants.core.sendAdvancement(chater, namespace, category, title);
 
-      Constants.core.sendAdvancement(chater, namespace, category, achievement);
     });
 
   }
