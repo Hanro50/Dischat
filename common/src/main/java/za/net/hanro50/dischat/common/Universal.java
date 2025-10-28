@@ -18,6 +18,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -32,6 +33,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import za.net.hanro50.dischat.core.ChatConsumer.Link;
 import za.net.hanro50.dischat.core.Chater;
@@ -146,26 +148,51 @@ public class Universal {
 
           dc.cause = new NamespaceContainer(damageSource.typeHolder().getRegisteredName().split(":")[0],
               "death.attack." + damageSource.getMsgId());
+          if (dc.cause.path.equals("death.attack.badRespawnPoint")) {
+            dc.cause.path += ".message";
+            dc.attacker = new NamespaceContainer("minecraft",
+                "death.attack.badRespawnPoint.link");
+            Constants.core.sendDeath(victem, dc);
+            return;
+          }
 
-          Entity attackerEntity = damageSource.getEntity();
-
-          if (attackerEntity != null) {
-            if (attackerEntity instanceof Player) {
-              dc.cause.path += ".player";
-              Player player = (Player) attackerEntity;
-              dc.playerAttacker = new Chater(player.getStringUUID(), player.getName().getString());
-              dc.name = dc.playerAttacker.name;
-            } else {
-              ResourceLocation resourceLocation = EntityType.getKey(attackerEntity.getType());
-
-              dc.attacker = new NamespaceContainer(resourceLocation.getNamespace(),
-                  attackerEntity.getType().getDescriptionId());
-              if (attackerEntity.hasCustomName())
-                dc.name = attackerEntity.getCustomName().getString();
+          damageSource.getLocalizedDeathMessage(entity);
+          Entity causingEntity = damageSource.getEntity();
+          Entity directEntity = damageSource.getDirectEntity();
+          if (causingEntity == null && directEntity == null) {
+            causingEntity = entity.getKillCredit();
+            if (causingEntity == null) {
+              Constants.core.sendDeath(victem, dc);
+              return;
             }
           }
 
+          causingEntity = causingEntity == null ? directEntity : causingEntity;
+          if (causingEntity instanceof LivingEntity livingEntity) {
+            var item = livingEntity.getMainHandItem();
+            if (!item.isEmpty() && item.has(DataComponents.CUSTOM_NAME)) {
+              dc.cause.path += ".item";
+              dc.itemName = item.getDisplayName().getString();
+            }
+          }
+          if (!dc.cause.path.endsWith(".item"))
+            dc.cause.path += ".player";
+
+          if (causingEntity instanceof Player player) {
+            dc.playerAttacker = new Chater(player.getStringUUID(),
+                player.getName().getString());
+            dc.name = dc.playerAttacker.name;
+          } else {
+            ResourceLocation resourceLocation = EntityType.getKey(causingEntity.getType());
+
+            dc.attacker = new NamespaceContainer(resourceLocation.getNamespace(),
+                causingEntity.getType().getDescriptionId());
+            if (causingEntity.hasCustomName())
+              dc.name = causingEntity.getCustomName().getString();
+          }
+
           Constants.core.sendDeath(victem, dc);
+          return;
         });
   }
 
