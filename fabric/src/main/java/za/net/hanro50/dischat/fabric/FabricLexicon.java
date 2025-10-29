@@ -3,9 +3,11 @@ package za.net.hanro50.dischat.fabric;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import net.fabricmc.loader.api.FabricLoader;
 import za.net.hanro50.dischat.core.Constants;
+import za.net.hanro50.dischat.core.Constants.MapContainer;
 import za.net.hanro50.dischat.core.Lexicon;
 import za.net.hanro50.dischat.core.NamespaceContainer;
 
@@ -15,7 +17,7 @@ public class FabricLexicon extends Lexicon {
     try {
       String data = Files.readString(path);
 
-      var mc = Constants.GSON.fromJson("{\"map\":" + data + "}", LanguageInfo.class);
+      var mc = Constants.GSON.fromJson(data, MapContainer.class).getMap();
       info.put(origin, mc);
     } catch (IOException e) {
       e.printStackTrace();
