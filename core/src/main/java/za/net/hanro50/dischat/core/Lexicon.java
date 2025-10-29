@@ -11,9 +11,11 @@ import java.util.Map;
 
 import com.google.gson.annotations.Expose;
 
+import za.net.hanro50.dischat.core.Constants.MapContainer;
+
 public class Lexicon {
 
-  protected Map<String, LanguageInfo> info = new HashMap<>();
+  protected Map<String, Map<String, String>> info = new HashMap<>();
 
   protected String lang = "en_us";
 
@@ -60,11 +62,6 @@ public class Lexicon {
     public Map<String, ObjectData> objects = new HashMap<>();
   }
 
-  static public class LanguageInfo {
-    @Expose
-    Map<String, String> map = new HashMap<>();
-  }
-
   protected Lexicon() {
   }
 
@@ -82,8 +79,8 @@ public class Lexicon {
 
     do {
       var key = String.join(".", lst);
-      if (language.map.containsKey(key))
-        return language.map.get(key);
+      if (language.containsKey(key))
+        return language.get(key);
       lst.removeLast();
     } while (lst.size() > 0);
     Constants.LOGGER.warn("Could not find " + namespace.origin + "::" + namespace.path);
@@ -150,7 +147,8 @@ public class Lexicon {
           .body();
       Constants.LOGGER.info("Lang url: https://resources.download.minecraft.net/" + data.hash.substring(0, 2)
           + "/" + data.hash);
-      var mc = Constants.GSON.fromJson("{\"map\":" + languageJsonResponse + "}", LanguageInfo.class);
+      var mc = (Map<String, String>) Constants.GSON.fromJson(languageJsonResponse,
+          MapContainer.class).getMap();
       info.put("minecraft", mc);
     } catch (IOException e) {
       // TODO Auto-generated catch block
