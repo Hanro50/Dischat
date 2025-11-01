@@ -83,14 +83,13 @@ public class Constants {
 
     // modded advancements
     AdvancementColorDict.put("ae2:main", "#afb9c3");
+    AdvancementColorDict.put("aether", "#9d90a7");
     AdvancementColorDict.put("apotheosis:progression", "#2f0974");
     AdvancementColorDict.put("apothic_enchanting", "#391d6d");
     AdvancementColorDict.put("apothic_spawners", "#52328d");
 
     AdvancementColorDict.put("create", "#c76756");
     AdvancementColorDict.put("trading_floor", "#00ac61");
-
-    AdvancementColorDict.put("eather", "#9d90a7");
 
     AdvancementColorDict.put("lootr", "#8a7a27");
 
