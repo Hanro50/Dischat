@@ -383,7 +383,7 @@ public class Core {
         ignore.printStackTrace();
       }
     }
-    var color = Constants.getAdvancementColor(category);
+    var color = Constants.AdvancementColorDict.getOrDefault(category, "#0000ff");
 
     var id = "advancements." + category + "." + advancement;
 
