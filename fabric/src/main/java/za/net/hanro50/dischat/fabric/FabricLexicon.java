@@ -3,7 +3,6 @@ package za.net.hanro50.dischat.fabric;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 import net.fabricmc.loader.api.FabricLoader;
 import za.net.hanro50.dischat.core.Constants;
