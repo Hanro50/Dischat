@@ -30,7 +30,7 @@ public class Dischat implements DedicatedServerModInitializer {
     Path path = FabricLoader.getInstance().getConfigDir();
     String version = FabricLoader.getInstance().getRawGameVersion();
     path = Path.of(new File(path.toFile(), Constants.MOD_ID).toURI());
-    Constants.core = new Core(path, Universal::broadcastChatMessage);
+    Constants.core = new Core(path, Universal::broadcastChatMessage, Universal::getInfo);
     Constants.core.setLexicon(new FabricLexicon(version, Constants.core.config.lang));
 
     ServerLifecycleEvents.SERVER_STARTED.register((server) -> {

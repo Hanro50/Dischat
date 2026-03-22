@@ -10,4 +10,8 @@ import net.minecraft.server.MinecraftServer;
 public interface MinecraftServerAccessor {
   @Accessor("statusIcon")
   void dischat$setStatusIcon(ServerStatus.Favicon statusIcon);
+
+  @Accessor("statusIcon")
+  ServerStatus.Favicon dischat$getStatusIcon();
+
 }

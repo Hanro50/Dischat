@@ -40,6 +40,7 @@ import za.net.hanro50.dischat.core.ChatConsumer.Link;
 import za.net.hanro50.dischat.core.Chater;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Deathcause;
+import za.net.hanro50.dischat.core.InfoProvider;
 import za.net.hanro50.dischat.core.NamespaceContainer;
 import za.net.hanro50.dischat.mixin.MinecraftServerAccessor;
 
@@ -91,6 +92,19 @@ public class Universal {
         () -> Constants.core.sendChat(new Chater(player.getStringUUID(), player.getName().getString()), message));
   }
 
+  public static InfoProvider.Result getInfo() {
+    var info = new InfoProvider.Result();
+    info.tps = server.tickRateManager().tickrate();
+    info.maxPlayers = server.getMaxPlayers();
+    info.onlinePlayerCount = server.getPlayerCount();
+
+    var icon = ((MinecraftServerAccessor) server).dischat$getStatusIcon();
+    if (icon != null)
+      info.icon = icon.iconBytes();
+
+    return info;
+  }
+
   public static void broadcastChatMessage(Chater chater, String message, Collection<Link> links) {
     Thread.startVirtualThread(
         () -> {
@@ -126,7 +140,6 @@ public class Universal {
                               .withInsertion(link.link);
                         } catch (URISyntaxException e) {
                           return style.withColor(ChatFormatting.GREEN)
-
                               .withInsertion(link.link);
                         }
                       });

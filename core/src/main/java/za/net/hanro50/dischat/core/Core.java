@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -13,7 +14,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ApplicationInfo;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.Webhook;
@@ -27,6 +27,10 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import za.net.hanro50.dischat.core.ChatConsumer.Link;
 
 import java.awt.Color;
@@ -42,6 +46,7 @@ public class Core {
   Lexicon lexicon;
   Consumer<Path> icon;
   ChatConsumer onRespond;
+  InfoProvider infoProvider;
 
   public class MessageReceiveListener extends ListenerAdapter {
 
@@ -53,7 +58,35 @@ public class Core {
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
-      parent.loadCommands(event.getGuild());
+      parent.loadCommands(event.getGuild()::upsertCommand);
+    }
+
+    public MessageCreateData infoDialog(InfoProvider.Result info) {
+      var color = "#1591EA";
+
+      var embedbuilder = new EmbedBuilder();
+
+      var messageBuilder = new MessageCreateBuilder();
+
+      embedbuilder.setTitle("Server status");
+
+      embedbuilder.setColor(Color.decode(color));
+
+      var detail = "";
+
+      detail += "Online players: " + info.onlinePlayerCount + "/" + info.maxPlayers + '\n';
+
+      detail += "TPS: " + info.tps;
+
+      embedbuilder.setDescription(detail);
+
+      if (info.icon != null) {
+        messageBuilder.addFiles(FileUpload.fromData(info.icon, "server.png"));
+        embedbuilder.setThumbnail("attachment://server.png");
+      }
+      messageBuilder.addEmbeds(embedbuilder.build());
+
+      return messageBuilder.build();
     }
 
     @Override
@@ -62,14 +95,22 @@ public class Core {
       OptionMapping opts;
       switch (event.getName()) {
         case "info":
-          if (!event.isFromGuild()
-              || (channel != null && channel.getGuild().getIdLong() != event.getGuild().getIdLong())) {
-            event.reply("This command may only be ran in the guild the bot is linked to").queue();
+
+          if (parent.infoProvider == null) {
+            event.reply("The DisChat implementation didn't provide a hook for this feature").setEphemeral(true)
+                .queue();
+            return;
+          }
+          var result = parent.infoProvider.accept();
+
+          if (result == null) {
+            event.reply("Could not gather info").setEphemeral(true).queue();
             return;
           }
 
-          event.reply("WIP\n").setEphemeral(true).queue();
-          break;
+          event.reply(infoDialog(result)).setEphemeral(true).queue();
+
+          return;
         case "setup":
           if (!event.isFromGuild()) {
             event.reply("Please run this command in a guild channel").queue();
@@ -110,6 +151,15 @@ public class Core {
             event.reply("Could not link account. Run /linkme ingame").setEphemeral(true).queue();
           }
           break;
+        case "set-status-message":
+          event.reply("WiP").setEphemeral(true)
+              .queue();
+          return;
+        case "update":
+          event.reply("Updating slash commands").setEphemeral(true)
+              .queue();
+          parent.loadCommands(event.getGuild()::upsertCommand);
+          return;
         default:
           if (event.isGuildCommand())
             event.getGuild().deleteCommandById(event.getCommandId());
@@ -143,7 +193,7 @@ public class Core {
         try {
           setChannel(event.getChannel().getId());
 
-          loadCommands(member.getGuild());
+          loadCommands(member.getGuild()::upsertCommand);
 
           parent.data.channel = event.getChannel().getId();
           parent.data.save();
@@ -181,12 +231,17 @@ public class Core {
     }
   }
 
-  public void loadCommands(Guild guild) {
-    guild.upsertCommand("link", "link your account").addOption(OptionType.STRING, "code",
+  public void loadCommands(BiFunction<String, String, CommandCreateAction> upsertCommand) {
+    upsertCommand.apply("link", "link your account").addOption(OptionType.STRING, "code",
         "Link you minecraft account to your discord one").queue();
-    guild.upsertCommand("info", "get server info").queue();
-    guild.upsertCommand("setup", "Setup the bot again")
+    upsertCommand.apply("info", "get server info").queue();
+    upsertCommand.apply("setup", "Setup the bot again")
         .addOption(OptionType.BOOLEAN, "sure", "Are you sure you really wanna do this?").queue();
+
+    upsertCommand.apply("update", "Updates the slash commands - run after a mod update").queue();
+
+    upsertCommand.apply("set-status-message", "Create a persistent status message that'll update every minute")
+        .queue();
   }
 
   public void setLexicon(Lexicon lexicon) {
@@ -194,8 +249,13 @@ public class Core {
   }
 
   public Core(Path path, ChatConsumer onChat) {
+    this(path, onChat, null);
+  }
+
+  public Core(Path path, ChatConsumer onChat, InfoProvider serverInfo) {
 
     this.onRespond = onChat;
+    this.infoProvider = serverInfo;
     File file = path.toFile();
 
     if (!file.exists()) {
@@ -213,24 +273,22 @@ public class Core {
     if (config.token.length() < 5) {
       Constants.LOGGER.error("Invalid token. Please provide a valid discord token. \nConfig file:"
           + new File(file, "config.json").getAbsolutePath());
+      return;
     }
-
-    jda = JDABuilder.createLight(config.token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT,
-        GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.GUILD_MEMBERS)
-        .addEventListeners(new MessageReceiveListener(this))
-        .build();
-
     try {
+      jda = JDABuilder.createLight(config.token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT,
+          GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.GUILD_MEMBERS)
+          .addEventListeners(new MessageReceiveListener(this))
+          .build();
+
       jda.awaitReady();
-      jda.upsertCommand("setup", "Setup the bot again")
-          .addOption(OptionType.BOOLEAN, "sure", "Are you sure you really wanna do this?").queue();
-      jda.upsertCommand("link", "link your account").addOption(OptionType.STRING, "code",
-          "Link you minecraft account to your discord one").queue();
-      jda.upsertCommand("info", "get server info").queue();
       info = jda.retrieveApplicationInfo().complete();
+      loadCommands(jda::upsertCommand);
 
       setChannel(data.channel);
-
+    } catch (IllegalArgumentException e) {
+      Constants.LOGGER.error("Could not load token :(");
+      e.printStackTrace();
     } catch (InterruptedException e) {
       e.printStackTrace();
     }

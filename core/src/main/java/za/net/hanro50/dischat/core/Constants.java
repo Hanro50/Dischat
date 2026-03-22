@@ -80,7 +80,6 @@ public class Constants {
     AdvancementColorDict.put("minecraft:husbandry", "#7e7e7e");
     AdvancementColorDict.put("minecraft:nether", "#aa1515");
     AdvancementColorDict.put("minecraft:story", "#fe8738");
-
     // modded advancements
     AdvancementColorDict.put("ae2:main", "#afb9c3");
     AdvancementColorDict.put("aether", "#9d90a7");

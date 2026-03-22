@@ -12,6 +12,9 @@ import java.util.function.Consumer;
 import com.google.gson.annotations.Expose;
 
 public final class Data {
+
+  @Expose
+  public String infoMessage; // Stored as <channelID>-<messageID>
   @Expose
   public String channel;
   @Expose
