@@ -25,7 +25,6 @@ public class WebhookObjects {
   }
 
   public void send(String webhook) {
-    Constants.LOGGER.info(Constants.GSON.toJson(this));
     HttpRequest request = HttpRequest.newBuilder()
         .uri(URI.create(webhook)).header("Content-Type", "application/json")
         .POST(HttpRequest.BodyPublishers.ofString(Constants.GSON.toJson(this)))
