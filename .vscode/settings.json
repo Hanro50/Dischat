@@ -8,5 +8,4 @@
   "editor.insertSpaces": true,
   "editor.detectIndentation": false,
   "java.compile.nullAnalysis.mode": "disabled",
-  "java.search.scope": "all"
 }

@@ -1,5 +1,5 @@
 # Build requirements
-- Java 21
+- Java 25
 - VS-Code
 # Fabric setup
 ```bash

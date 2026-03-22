@@ -1,5 +1,6 @@
 plugins {
-  id 'org.spongepowered.gradle.vanilla' version '0.2.1-SNAPSHOT'
+  id 'java'
+  id 'org.spongepowered.gradle.vanilla' version '0.3.2'
 }
 
 version = project.mod_version
@@ -7,6 +8,11 @@ group = project.maven_group
 
 base {
 	archivesName = project.mod_id+"-common"
+}
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
 }
 
 minecraft {

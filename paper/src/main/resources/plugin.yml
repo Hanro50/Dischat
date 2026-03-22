@@ -3,9 +3,9 @@ version: 1.0.0
 main: za.net.hanro50.dischat.paper.DisChat
 description: A Discord chat bridge.
 author: hanro50
-api-version: "1.21.1"
+api-version: "26.1"
 libraries:
-  - net.dv8tion:JDA:6.0.0
+  - net.dv8tion:JDA:6.3.2
 commands:
   linkme:
     description: Link your Discord and Minecraft Account

@@ -1,15 +1,15 @@
 plugins {
   id 'java'
-	id 'fabric-loom' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
-  id "com.gradleup.shadow" version "9.2.1" apply false
+  id "com.gradleup.shadow" version "9.4.0" apply false
 }
 
 version = project.mod_version
 group = project.maven_group
 
 base {
-	archivesName = project.mod_id+"-fabric"
+  archivesName = project.mod_id+"-fabric"
 }
 sourceSets {
   main {
@@ -44,12 +44,10 @@ dependencies {
     api(project(":core"))
     include( project(path: ':core', configuration: 'shadow'))
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation  "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
 }
 
@@ -62,7 +60,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
@@ -71,8 +69,11 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(25)
+  }
 }
 
 jar {

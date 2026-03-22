@@ -25,11 +25,11 @@
       "projectName": "neoforge",
       "mainClass": "net.neoforged.devlaunch.Main",
       "args": [
-        "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/clientRunProgramArgs.txt"
+        "@/home/hanro50/Documents/GitHub/Dischat/neoforge/build/moddev/clientRunProgramArgs.txt"
       ],
       "vmArgs": [
-        "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/clientRunVmArgs.txt",
-        "-Dfml.modFolders\u003ddischat_core%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
+        "@/home/hanro50/Documents/GitHub/Dischat/neoforge/build/moddev/clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003ddischat_core%%/home/hanro50/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro50/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro50/Documents/GitHub/Dischat/common/bin/main"
       ],
       "cwd": "${workspaceFolder}/neoforge/run",
       "env": {},
@@ -47,11 +47,11 @@
       "projectName": "neoforge",
       "mainClass": "net.neoforged.devlaunch.Main",
       "args": [
-        "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/dataRunProgramArgs.txt"
+        "@/home/hanro50/Documents/GitHub/Dischat/neoforge/build/moddev/dataRunProgramArgs.txt"
       ],
       "vmArgs": [
-        "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/dataRunVmArgs.txt",
-        "-Dfml.modFolders\u003ddischat_core%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
+        "@/home/hanro50/Documents/GitHub/Dischat/neoforge/build/moddev/dataRunVmArgs.txt",
+        "-Dfml.modFolders\u003ddischat_core%%/home/hanro50/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro50/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro50/Documents/GitHub/Dischat/common/bin/main"
       ],
       "cwd": "${workspaceFolder}/neoforge/run",
       "env": {},
@@ -69,11 +69,11 @@
       "projectName": "neoforge",
       "mainClass": "net.neoforged.devlaunch.Main",
       "args": [
-        "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/gameTestServerRunProgramArgs.txt"
+        "@/home/hanro50/Documents/GitHub/Dischat/neoforge/build/moddev/gameTestServerRunProgramArgs.txt"
       ],
       "vmArgs": [
-        "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/gameTestServerRunVmArgs.txt",
-        "-Dfml.modFolders\u003ddischat_core%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
+        "@/home/hanro50/Documents/GitHub/Dischat/neoforge/build/moddev/gameTestServerRunVmArgs.txt",
+        "-Dfml.modFolders\u003ddischat_core%%/home/hanro50/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro50/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro50/Documents/GitHub/Dischat/common/bin/main"
       ],
       "cwd": "${workspaceFolder}/neoforge/run",
       "env": {},
@@ -91,11 +91,11 @@
       "projectName": "neoforge",
       "mainClass": "net.neoforged.devlaunch.Main",
       "args": [
-        "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/serverRunProgramArgs.txt"
+        "@/home/hanro50/Documents/GitHub/Dischat/neoforge/build/moddev/serverRunProgramArgs.txt"
       ],
       "vmArgs": [
-        "@/home/hanro/Documents/GitHub/Dischat/neoforge/build/moddev/serverRunVmArgs.txt",
-        "-Dfml.modFolders\u003ddischat_core%%/home/hanro/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro/Documents/GitHub/Dischat/common/bin/main"
+        "@/home/hanro50/Documents/GitHub/Dischat/neoforge/build/moddev/serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003ddischat_core%%/home/hanro50/Documents/GitHub/Dischat/core/bin/main:dischat%%/home/hanro50/Documents/GitHub/Dischat/neoforge/bin/main:dischat_common%%/home/hanro50/Documents/GitHub/Dischat/common/bin/main"
       ],
       "cwd": "${workspaceFolder}/neoforge/run",
       "env": {},
