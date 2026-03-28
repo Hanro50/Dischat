@@ -1,12 +1,12 @@
 package za.net.hanro50.dischat.neoforge;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
 import net.neoforged.fml.ModList;
+import net.neoforged.fml.jarcontents.JarResource;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Constants.MapContainer;
 import za.net.hanro50.dischat.core.Lexicon;
@@ -17,8 +17,9 @@ public class NeoForgeLexicon extends Lexicon {
     super(version, code);
   }
 
-  protected Map<String, String> decode(Path path, String origin) throws IOException {
-    return Constants.GSON.fromJson(Files.readString(path), MapContainer.class).getMap();
+  protected Map<String, String> decode(JarResource resource, String origin) throws IOException {
+    String data = new String(resource.readAllBytes(), StandardCharsets.UTF_8);
+    return Constants.GSON.fromJson(data, MapContainer.class).getMap();
   }
 
   public String retrieve(NamespaceContainer namespace) {
@@ -28,12 +29,12 @@ public class NeoForgeLexicon extends Lexicon {
     var modFile = ModList.get().getModFileById(namespace.origin);
     Map<String, String> result = new HashMap<>();
     try {
-      var resource = modFile.getFile().getSecureJar().getPath("/assets/" + namespace.origin + "/lang/en_us.json");
+      var resource = modFile.getFile().getContents().get("/assets/" + namespace.origin + "/lang/en_us.json");
       result.putAll(decode(resource, namespace.origin));
     } catch (IOException error) {
     }
     try {
-      var resource = modFile.getFile().getSecureJar().getPath("/assets/" + namespace.origin + "/lang/" +
+      var resource = modFile.getFile().getContents().get("/assets/" + namespace.origin + "/lang/" +
           this.lang + ".json");
       result.putAll(decode(resource, namespace.origin));
     } catch (IOException error) {

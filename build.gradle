@@ -32,7 +32,7 @@ tasks.withType(ProcessResources).configureEach {
     ]
     inputs.properties replaceProperties
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta','META-INF/neoforge.mods.toml',"fabric.mod.json"]) {
-        expand replaceProperties + [project: project]
+        expand replaceProperties
     }
 
 }

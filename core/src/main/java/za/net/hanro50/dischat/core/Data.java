@@ -40,13 +40,9 @@ public final class Data {
 
       Data data = Constants.GSON.fromJson(info, Data.class);
 
-      final Data result = new Data(file);
-
-      result.channel = data.channel;
-      result.DiscordToMinecraft.putAll(data.DiscordToMinecraft);
-      data.DiscordToMinecraft.forEach((v, k) -> result.MinecraftToDiscord.put(k, v));
+      data.DiscordToMinecraft.forEach((v, k) -> data.MinecraftToDiscord.put(k, v));
       Constants.LOGGER.info(data.DiscordToMinecraft.size() + "");
-      return result;
+      return data;
     } catch (IOException exception) {
       exception.printStackTrace();
     }

@@ -15,9 +15,11 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ApplicationInfo;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.sticker.StickerItem;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -61,12 +63,18 @@ public class Core {
       parent.loadCommands(event.getGuild()::upsertCommand);
     }
 
-    public MessageCreateData infoDialog(InfoProvider.Result info) {
+    public MessageCreateData infoDialog() {
+
+      var info = parent.infoProvider.accept();
+
       var color = "#1591EA";
 
       var embedbuilder = new EmbedBuilder();
 
       var messageBuilder = new MessageCreateBuilder();
+
+      if (info == null)
+        return messageBuilder.setContent("Could not gather info").build();
 
       embedbuilder.setTitle("Server status");
 
@@ -101,14 +109,8 @@ public class Core {
                 .queue();
             return;
           }
-          var result = parent.infoProvider.accept();
 
-          if (result == null) {
-            event.reply("Could not gather info").setEphemeral(true).queue();
-            return;
-          }
-
-          event.reply(infoDialog(result)).setEphemeral(true).queue();
+          event.reply(infoDialog()).setEphemeral(true).queue();
 
           return;
         case "setup":
@@ -152,8 +154,24 @@ public class Core {
           }
           break;
         case "set-status-message":
-          event.reply("WiP").setEphemeral(true)
-              .queue();
+          if (!event.getUser().getId().equals(info.getOwner().getId())) {
+            event.reply("Only the bot owner can run this command").setEphemeral(true).queue();
+            return;
+          }
+          if (parent.infoProvider == null) {
+            event.reply("The DisChat implementation didn't provide a hook for this feature").setEphemeral(true)
+                .queue();
+            return;
+          }
+          event.reply("Will create message").setEphemeral(true).queue();
+
+          event.getChannel().sendMessage(infoDialog()).queue((message) -> {
+
+            data.infoMessage = message.getChannelId() + "-" + message.getId();
+            data.save();
+            PersistentStatus.schedule(parent, message, config.statusUpdateInterval);
+          });
+
           return;
         case "update":
           event.reply("Updating slash commands").setEphemeral(true)
@@ -293,6 +311,15 @@ public class Core {
       e.printStackTrace();
     }
 
+    if (data.infoMessage != null && data.infoMessage.contains("-")) {
+      var prts = data.infoMessage.split("-");
+
+      var channel = jda.getChannelById(StandardGuildMessageChannel.class, prts[0]);
+      channel.retrieveMessageById(prts[1]).queue(
+          (message) -> PersistentStatus.schedule(this, message, config.statusUpdateInterval));
+
+    }
+
   }
 
   public void setChannel(String channelId) {
@@ -415,6 +442,7 @@ public class Core {
     }
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
     sendEmbed(chater, lexicon.retrieve(NamespaceContainer.literal("multiplayer.player.joined")), "#04ff00");
+    PersistentStatus.runUpdate();
   }
 
   public void sendLeave(Chater chater) {
@@ -422,6 +450,12 @@ public class Core {
       return;
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
     sendEmbed(chater, lexicon.retrieve(NamespaceContainer.literal("multiplayer.player.left")), "#ff0000");
+
+    if (this.infoProvider == null)
+      return;
+
+    PersistentStatus.runUpdate();
+
   }
 
   public void sendAdvancement(Chater chater, String namespace, String category, String advancement) {
