@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -22,12 +23,12 @@ public class Config {
   public Boolean advancementMessages = true;
   @Expose
   public String token = "";
-
   @Expose
   public String lang = "en_gb";
-
   @Expose
-  String DO_NOT_CHANGE_VERSION = "1.0.5";
+  public float statusUpdateInterval = 62.512f;
+  @Expose
+  String DO_NOT_CHANGE_VERSION = "1.0.6";
 
   public static Config deserialize(File file) {
     final Config result = new Config();
@@ -42,13 +43,17 @@ public class Config {
 
       Config config = Constants.GSON.fromJson(info, Config.class);
 
-      result.token = config.token;
-      result.lang = config.lang;
-      result.useGuildIcon = config.useGuildIcon;
-      result.advancementMessages = config.advancementMessages;
-      result.deathMessages = config.deathMessages;
-      result.leaveMessages = config.leaveMessages;
-      result.joinMessages = config.joinMessages;
+      for (Field field : Config.class.getDeclaredFields()) {
+        if (field.getName().equals("DO_NOT_CHANGE_VERSION") || !field.isAnnotationPresent(Expose.class)) {
+          Constants.LOGGER.debug("Config deserialization: Skipping field: " + field.getName());
+          continue;
+        }
+        try {
+          field.set(result, field.get(config));
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+          e.printStackTrace();
+        }
+      }
 
       if (!config.DO_NOT_CHANGE_VERSION.equals(result.DO_NOT_CHANGE_VERSION)) {
         Constants.LOGGER.info("UPDATING CONFIG!");
