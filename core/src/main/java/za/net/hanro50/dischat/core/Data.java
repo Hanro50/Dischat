@@ -41,6 +41,7 @@ public final class Data {
       Data data = Constants.GSON.fromJson(info, Data.class);
 
       data.DiscordToMinecraft.forEach((v, k) -> data.MinecraftToDiscord.put(k, v));
+      data.file = file;
       Constants.LOGGER.info(data.DiscordToMinecraft.size() + "");
       return data;
     } catch (IOException exception) {
