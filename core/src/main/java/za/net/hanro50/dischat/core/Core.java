@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ApplicationInfo;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -437,15 +436,16 @@ public class Core {
   }
 
   public void sendJoin(Chater chater) {
+    PersistentStatus.runUpdate();
     if (!active || !config.joinMessages) {
       return;
     }
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
     sendEmbed(chater, lexicon.retrieve(NamespaceContainer.literal("multiplayer.player.joined")), "#04ff00");
-    PersistentStatus.runUpdate();
   }
 
   public void sendLeave(Chater chater) {
+    PersistentStatus.runUpdate();
     if (!active || !config.leaveMessages)
       return;
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
@@ -453,8 +453,6 @@ public class Core {
 
     if (this.infoProvider == null)
       return;
-
-    PersistentStatus.runUpdate();
 
   }
 

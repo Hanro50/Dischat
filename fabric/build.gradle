@@ -53,10 +53,6 @@ dependencies {
 
 processResources {
 	inputs.property "version", project.version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": inputs.properties.version
-	}
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -78,10 +74,6 @@ java {
 
 jar {
 	inputs.property "archivesName", project.base.archivesName
-
-	from("LICENSE") {
-		rename { "${it}_${inputs.properties.archivesName}"}
-	}
 }
 
 // configure the maven publication
