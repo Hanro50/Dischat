@@ -2,7 +2,6 @@ package za.net.hanro50.dischat.mixin;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.server.MinecraftServer;
 
@@ -13,5 +12,4 @@ public interface MinecraftServerAccessor {
 
   @Accessor("statusIcon")
   ServerStatus.Favicon dischat$getStatusIcon();
-
 }

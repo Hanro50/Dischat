@@ -94,6 +94,8 @@ public class Universal {
 
   public static InfoProvider.Result getInfo() {
     var info = new InfoProvider.Result();
+    if (server == null)
+      return null;
     info.tps = server.tickRateManager().tickrate();
     info.maxPlayers = server.getMaxPlayers();
     info.onlinePlayerCount = server.getPlayerCount();
