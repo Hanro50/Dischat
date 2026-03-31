@@ -24,13 +24,16 @@ public class PersistentStatus extends TimerTask {
     this.message = message;
   }
 
-  public static void schedule(Core parent, Message message, float delay) {
+  public static void kill() {
     if (timer != null)
       timer.cancel();
 
     if (instance != null)
       instance.cancel();
+  }
 
+  public static void schedule(Core parent, Message message, float delay) {
+    kill();
     instance = new PersistentStatus(parent, message);
     timer = new Timer();
     Constants.LOGGER.debug("Initiating timer");
@@ -39,38 +42,45 @@ public class PersistentStatus extends TimerTask {
   }
 
   public static void runUpdate() {
+
     if (instance == null)
       return;
     if (pause)
       pause = false;
-    Thread.startVirtualThread(() -> instance.run());
+
+    Thread.startVirtualThread(() -> {
+      try {
+        // Delay so the server has time to update.
+        Thread.sleep(500);
+      } catch (Exception e) {
+      }
+      instance.run();
+    });
+
   }
 
   @Override
   public void run() {
-    if (pause)
+    if (pause || parent.infoProvider == null || !parent.active)
       return;
     var info = parent.infoProvider.accept();
-
-    var color = "#1591EA";
-
-    var embedbuilder = new EmbedBuilder();
-
-    var messageBuilder = new MessageEditBuilder();
 
     if (info == null)
       return;
 
-    embedbuilder.setTitle("Server status");
+    var color = "#1591EA";
+    var embedbuilder = new EmbedBuilder();
+    var messageBuilder = new MessageEditBuilder();
 
+    embedbuilder.setTitle("Server status");
     embedbuilder.setColor(Color.decode(color));
 
     var detail = "";
 
     detail += "Online players: " + info.onlinePlayerCount + "/" + info.maxPlayers + '\n';
-
     detail += "TPS: " + info.tps + '\n';
     detail += "Last Updated: <t:" + Instant.now().getEpochSecond() + ":S>";
+
     if (info.onlinePlayerCount <= 0) {
       Constants.LOGGER.debug("Hybernating status updates");
       pause = true;

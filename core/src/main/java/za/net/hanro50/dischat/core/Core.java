@@ -1,11 +1,16 @@
 package za.net.hanro50.dischat.core;
 
 import java.io.File;
-
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -32,7 +37,11 @@ import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
+import okhttp3.OkHttpClient;
 import za.net.hanro50.dischat.core.ChatConsumer.Link;
+import za.net.hanro50.dischat.core.Core.MessageReceiveListener;
 
 import java.awt.Color;
 
@@ -270,7 +279,6 @@ public class Core {
   }
 
   public Core(Path path, ChatConsumer onChat, InfoProvider serverInfo) {
-
     this.onRespond = onChat;
     this.infoProvider = serverInfo;
     File file = path.toFile();
@@ -292,33 +300,33 @@ public class Core {
           + new File(file, "config.json").getAbsolutePath());
       return;
     }
-    try {
-      jda = JDABuilder.createLight(config.token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT,
-          GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.GUILD_MEMBERS)
-          .addEventListeners(new MessageReceiveListener(this))
-          .build();
+    // Avoids a stall on shutdown.
+    Thread.startVirtualThread(
+        () -> {
+          try {
+            jda = JDABuilder.createLight(config.token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT,
+                GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.GUILD_MEMBERS)
+                .addEventListeners(new MessageReceiveListener(this))
+                .build();
 
-      jda.awaitReady();
-      info = jda.retrieveApplicationInfo().complete();
-      loadCommands(jda::upsertCommand);
+            jda.awaitReady();
+            info = jda.retrieveApplicationInfo().complete();
+            loadCommands(jda::upsertCommand);
 
-      setChannel(data.channel);
-    } catch (IllegalArgumentException e) {
-      Constants.LOGGER.error("Could not load token :(");
-      e.printStackTrace();
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    if (data.infoMessage != null && data.infoMessage.contains("-")) {
-      var prts = data.infoMessage.split("-");
-
-      var channel = jda.getChannelById(StandardGuildMessageChannel.class, prts[0]);
-      channel.retrieveMessageById(prts[1]).queue(
-          (message) -> PersistentStatus.schedule(this, message, config.statusUpdateInterval));
-
-    }
-
+            setChannel(data.channel);
+          } catch (IllegalArgumentException e) {
+            Constants.LOGGER.error("Could not load token :(");
+            e.printStackTrace();
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+          if (data.infoMessage != null && data.infoMessage.contains("-")) {
+            var prts = data.infoMessage.split("-");
+            var channel = jda.getChannelById(StandardGuildMessageChannel.class, prts[0]);
+            channel.retrieveMessageById(prts[1]).queue(
+                (message) -> PersistentStatus.schedule(this, message, config.statusUpdateInterval));
+          }
+        });
   }
 
   public void setChannel(String channelId) {
@@ -450,10 +458,6 @@ public class Core {
       return;
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
     sendEmbed(chater, lexicon.retrieve(NamespaceContainer.literal("multiplayer.player.left")), "#ff0000");
-
-    if (this.infoProvider == null)
-      return;
-
   }
 
   public void sendAdvancement(Chater chater, String namespace, String category, String advancement) {
@@ -507,13 +511,18 @@ public class Core {
   }
 
   public void kill() {
-    if (jda != null)
+    active = false;
+    Constants.LOGGER.info("Starting to shutdown");
+    if (jda != null) {
+      PersistentStatus.kill();
+      jda.shutdown();
       try {
-        jda.awaitShutdown();
+        jda.awaitShutdown(10, TimeUnit.SECONDS);
       } catch (InterruptedException e) {
-
         e.printStackTrace();
       }
+      Constants.LOGGER.info("All connections closed!");
+    }
   }
 
 }
