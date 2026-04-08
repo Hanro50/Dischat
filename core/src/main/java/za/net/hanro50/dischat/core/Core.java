@@ -3,6 +3,7 @@ package za.net.hanro50.dischat.core;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.security.Provider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -230,7 +231,8 @@ public class Core {
         }
       }
 
-      if (parent.channel == null || event.getChannel().getIdLong() != parent.channel.getIdLong())
+      if (parent.channel == null || event.getChannel().getIdLong() != parent.channel.getIdLong()
+          || parent.onRespond == null)
         return;
 
       Chater chater = new Chater(member.getIdLong(), member.getEffectiveName());
@@ -274,13 +276,7 @@ public class Core {
     this.lexicon = lexicon;
   }
 
-  public Core(Path path, ChatConsumer onChat) {
-    this(path, onChat, null);
-  }
-
-  public Core(Path path, ChatConsumer onChat, InfoProvider serverInfo) {
-    this.onRespond = onChat;
-    this.infoProvider = serverInfo;
+  public Core(Path path, Runnable onStart) {
     File file = path.toFile();
 
     if (!file.exists()) {
@@ -320,13 +316,10 @@ public class Core {
           } catch (InterruptedException e) {
             e.printStackTrace();
           }
-          if (data.infoMessage != null && data.infoMessage.contains("-")) {
-            var prts = data.infoMessage.split("-");
-            var channel = jda.getChannelById(StandardGuildMessageChannel.class, prts[0]);
-            channel.retrieveMessageById(prts[1]).queue(
-                (message) -> PersistentStatus.schedule(this, message, config.statusUpdateInterval));
-          }
+
+          onStart.run();
         });
+
   }
 
   public void setChannel(String channelId) {
@@ -508,6 +501,21 @@ public class Core {
   public void addSetIconListener(Consumer<Path> icon) {
     this.icon = icon;
     updateIcon();
+  }
+
+  public void addOnChatListener(ChatConsumer onChat) {
+    this.onRespond = onChat;
+  }
+
+  public void addInfoListener(InfoProvider infoProvider) {
+    this.infoProvider = infoProvider;
+    if (data.infoMessage != null && data.infoMessage.contains("-")) {
+      var prts = data.infoMessage.split("-");
+      var channel = jda.getChannelById(StandardGuildMessageChannel.class, prts[0]);
+      channel.retrieveMessageById(prts[1]).queue(
+          (message) -> PersistentStatus.schedule(this, message, config.statusUpdateInterval));
+    }
+    PersistentStatus.runUpdate();
   }
 
   public void kill() {

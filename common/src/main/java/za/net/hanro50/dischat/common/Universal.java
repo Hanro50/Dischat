@@ -77,9 +77,10 @@ public class Universal {
 
   }
 
-  public static void setIconUpdateListener() {
-    Thread.startVirtualThread(
-        () -> Constants.core.addSetIconListener(path -> setStatusIcon(path)));
+  public static void startup() {
+    Constants.core.addOnChatListener(Universal::broadcastChatMessage);
+    Constants.core.addInfoListener(Universal::getInfo);
+    Constants.core.addSetIconListener(path -> setStatusIcon(path));
   }
 
   public static void setServer(MinecraftServer server) {
