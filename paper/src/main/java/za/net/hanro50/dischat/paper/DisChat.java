@@ -25,6 +25,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.projectiles.ProjectileSource;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
 import za.net.hanro50.dischat.core.ChatConsumer.Link;
 import za.net.hanro50.dischat.core.Chater;
 import za.net.hanro50.dischat.core.Constants;
@@ -39,7 +41,7 @@ public class DisChat extends JavaPlugin implements Listener {
     Bukkit.getPluginManager().registerEvents(this, this);
     if (Constants.core != null)
       Constants.core.kill();
-    this.getCommand("linkme").setExecutor(new LinkMeCommand());
+    // this.getCommand("linkme").setExecutor(new LinkMeCommand());
 
     Constants.core = new Core(Path.of(this.getDataFolder().toURI()), this::onChat);
     Constants.core.setLexicon(new Lexicon(this.getServer().getVersion(), Constants.core.config.lang));
@@ -55,7 +57,7 @@ public class DisChat extends JavaPlugin implements Listener {
       }
     }
 
-    this.getServer().broadcastMessage("<" + chater.name + "> " + content);
+    this.getServer().broadcast(Component.text("<" + chater.name + "> " + content).asComponent());
   }
 
   @Override
@@ -78,19 +80,41 @@ public class DisChat extends JavaPlugin implements Listener {
 
   @EventHandler
   void PlayerAdvancementDoneEvent(PlayerAdvancementDoneEvent event) {
-    String[] advancement = event.getAdvancement().getKey().getKey().split("/");
-    if (advancement.length != 2) {
-      Constants.LOGGER.warn("INVALID ADVANCEMENT: " + event.getAdvancement().getKey().getKey());
-    }
-    if (advancement[0].equalsIgnoreCase("recipes")) {
+
+    var displayInfo = event.getAdvancement().getDisplay();
+
+    if (displayInfo == null || !displayInfo.doesAnnounceToChat())
       return;
-    }
+
+    var title = "";
+    var titleComponent = displayInfo.title();
+    Constants.LOGGER.info(titleComponent.getClass().getName());
+    if (titleComponent instanceof TranslatableComponent translatable)
+      title = translatable.key();
+
+    var discription = "";
+    var descComponent = displayInfo.description();
+    Constants.LOGGER.info(descComponent.getClass().getName());
+
+    if (descComponent instanceof TranslatableComponent translatable)
+      discription = translatable.key();
+
+    String[] parts = event.getAdvancement().getKey().getKey().split("/");
+    String namespace = event.getAdvancement().getKey().getNamespace();
+    String category = namespace;
+    if (parts.length > 1)
+      category += ":" + parts[0];
+
     Player player = event.getPlayer();
 
-    Constants.core.sendAdvancement(new Chater(player.getUniqueId().toString(),
-        player.getName()), "minecraft",
-        advancement[0],
-        advancement[1]);
+    Constants.LOGGER.info(namespace + ":-:" + category + ":-:" + title + ":-:" + discription);
+
+    Constants.core.sendAdvancement(
+        new Chater(player.getUniqueId().toString(), player.getName()),
+        namespace,
+        category,
+        title,
+        discription);
 
   }
 

@@ -429,16 +429,19 @@ public class Core {
     for (String option : options)
       args.add(option);
 
-    channel.sendMessageEmbeds(new EmbedBuilder().setAuthor(String.format(text, args.toArray()), link, pfp)
-        .setColor(Color.decode(color)).build())
+    channel.sendMessageEmbeds(
+        new EmbedBuilder()
+            .setAuthor(String.format(text, args.toArray()), link, pfp)
+            .setColor(Color.decode(color)).build())
+        .setSuppressedNotifications(config.silentEmbeds)
         .queue();
   }
 
   public void sendJoin(Chater chater) {
     PersistentStatus.runUpdate();
-    if (!active || !config.joinMessages) {
+    if (!active || !config.joinMessages)
       return;
-    }
+
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
     sendEmbed(chater, lexicon.retrieve(NamespaceContainer.literal("multiplayer.player.joined")), "#04ff00");
   }
@@ -451,7 +454,8 @@ public class Core {
     sendEmbed(chater, lexicon.retrieve(NamespaceContainer.literal("multiplayer.player.left")), "#ff0000");
   }
 
-  public void sendAdvancement(Chater chater, String namespace, String category, String advancement) {
+  public void sendAdvancement(Chater chater, String namespace, String category, String title, String description) {
+    Constants.LOGGER.debug("Got this advancement::" + namespace + ":" + category + ":" + title + ":" + description);
     if (!active || !config.advancementMessages)
       return;
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
@@ -471,14 +475,18 @@ public class Core {
     Constants.LOGGER.info(category);
     var color = Constants.getAdvancementString(category);
 
-    var titleNS = new NamespaceContainer(namespace, advancement + ".title");
-    var descriptionNS = new NamespaceContainer(namespace, advancement + ".desc");
+    var titleNS = new NamespaceContainer(namespace, title);
+    var descriptionNS = new NamespaceContainer(namespace, description);
+
+    var disc = lexicon.retrieve(descriptionNS).replaceAll("\n§7", "\n-# ");
+
     channel.sendMessageEmbeds(
         new EmbedBuilder()
             .setAuthor(name, link, pfp)
             .setTitle(lexicon.retrieve(titleNS))
-            .setDescription(lexicon.retrieve(descriptionNS))
+            .setDescription(disc)
             .setColor(Color.decode(color)).build())
+        .setSuppressedNotifications(config.silentEmbeds)
         .queue();
   }
 

@@ -1,12 +1,18 @@
 plugins {
     id 'java-library'
     id 'net.neoforged.moddev' version '2.0.115'
+    id 'org.jetbrains.kotlin.jvm' version '2.2.20'
 }
 
 mod_version
 group = maven_group
 
 repositories {
+  // Add KFF Maven repository
+  maven {
+    name = 'Kotlin for Forge'
+    url = 'https://thedarkcolour.github.io/KotlinForForge/'
+  }
 }
 
 base {
@@ -81,9 +87,6 @@ neoForge {
         // define mod <-> source bindings
         // these are used to tell the game which sources are for which mod
         // multi mod projects should define one per mod
-        "${mod_id}_core" {
-          sourceSet(project(":core").sourceSets.main)
-        }
         "${mod_id}_common" {
           sourceSet(project(":common").sourceSets.main)
         }
@@ -105,14 +108,11 @@ configurations {
 }
 
 dependencies {
-  jarJar(implementation(project(path:":core", configuration:"shadow_forge"))){
-    exclude module: "slf4j-api"
-    exclude module: "gson"
-  }
+  implementation 'thedarkcolour:kotlinforforge-neoforge:5.10.0'
   jarJar(implementation(project(":common")))
 
-  compileOnly(project(":core"))
-  additionalRuntimeClasspath("net.dv8tion:JDA:6.0.0")
+  additionalRuntimeClasspath(project(path:":core", configuration:"shadow_forge"))
+  jarJar(implementation(project(path:":core", configuration:"shadow_forge")))
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

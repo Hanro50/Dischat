@@ -22,13 +22,15 @@ public class Config {
   @Expose
   public Boolean advancementMessages = true;
   @Expose
+  public Boolean silentEmbeds = true;
+  @Expose
   public String token = "";
   @Expose
   public String lang = "en_gb";
   @Expose
   public float statusUpdateInterval = 62.512f;
   @Expose
-  String DO_NOT_CHANGE_VERSION = "1.0.6";
+  String DO_NOT_CHANGE_VERSION = "1.0.7";
 
   public static Config deserialize(File file) {
     final Config result = new Config();
