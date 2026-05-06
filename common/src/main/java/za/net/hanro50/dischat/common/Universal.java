@@ -13,6 +13,8 @@ import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
+import org.intellij.lang.annotations.Identifier;
+
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
@@ -28,7 +30,8 @@ import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
 import net.minecraft.network.protocol.status.ServerStatus;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
+
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -116,10 +119,9 @@ public class Universal {
           String name = chater.name;
           if (chater.minecraftID != null) {
             UUID uuid = UUID.fromString(chater.minecraftID);
-            var player = server.getPlayerList().getPlayer(uuid);
-            if (player != null) {
-              GameProfile user = player.getGameProfile();
-              name = user.name();
+            if (server.getProfileCache().get(uuid).isPresent()) {
+              GameProfile user = server.getProfileCache().get(uuid).get();
+              name = user.getName();
             }
           }
 
@@ -134,16 +136,11 @@ public class Universal {
                 Component.literal(text).append(
                     ComponentUtils.formatAndSortList(links, (Link link) -> {
                       return Component.literal("[" + link.name + "]").withStyle((style) -> {
-                        try {
-                          return style.withColor(ChatFormatting.GREEN)
-                              .withClickEvent(new ClickEvent.OpenUrl(new URI(link.link)))
-                              .withHoverEvent(
-                                  new HoverEvent.ShowText(Component.translatable("chat.link.open")))
-                              .withInsertion(link.link);
-                        } catch (URISyntaxException e) {
-                          return style.withColor(ChatFormatting.GREEN)
-                              .withInsertion(link.link);
-                        }
+                        return style.withColor(ChatFormatting.GREEN)
+                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link.link))
+                            .withHoverEvent(
+                                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.link.open")))
+                            .withInsertion(link.link);
                       });
                     })));
 
@@ -206,7 +203,7 @@ public class Universal {
                 player.getName().getString());
             dc.name = dc.playerAttacker.name;
           } else {
-            Identifier resourceLocation = EntityType.getKey(causingEntity.getType());
+            ResourceLocation resourceLocation = EntityType.getKey(causingEntity.getType());
 
             dc.attacker = new NamespaceContainer(resourceLocation.getNamespace(),
                 causingEntity.getType().getDescriptionId());

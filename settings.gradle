@@ -28,7 +28,7 @@ plugins {
 
 include 'core'
 include 'common'
-include 'fabric'
 include 'neoforge'
-include 'forge'
 include 'paper'
+include 'fabric'
+include 'forge'
