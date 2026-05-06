@@ -48,3 +48,5 @@ forge/src/generated/**/*.json text eol=lf
 runs/
 # Files from Forge MDK
 forge*changelog.txt
+
+.vscode/launch.json
