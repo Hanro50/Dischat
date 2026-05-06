@@ -5,15 +5,11 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
-
-import org.intellij.lang.annotations.Identifier;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;

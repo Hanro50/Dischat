@@ -1,15 +1,10 @@
 package za.net.hanro50.dischat.core;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -37,11 +32,7 @@ import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import okhttp3.ConnectionPool;
-import okhttp3.Dispatcher;
-import okhttp3.OkHttpClient;
 import za.net.hanro50.dischat.core.ChatConsumer.Link;
-import za.net.hanro50.dischat.core.Core.MessageReceiveListener;
 
 import java.awt.Color;
 
@@ -478,7 +469,7 @@ public class Core {
       }
     }
     Constants.LOGGER.info(category);
-    var color = Constants.AdvancementColorDict.getOrDefault(category, "#0000ff");
+    var color = Constants.getAdvancementString(category);
 
     var titleNS = new NamespaceContainer(namespace, advancement + ".title");
     var descriptionNS = new NamespaceContainer(namespace, advancement + ".desc");

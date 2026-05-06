@@ -1,7 +1,6 @@
 package za.net.hanro50.dischat.neoforge;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +28,8 @@ public class NeoForgeLexicon extends Lexicon {
     var modFile = ModList.get().getModFileById(namespace.origin);
     Map<String, String> result = new HashMap<>();
     try {
-      var resource = modFile.getFile().getSecureJar().getPath("/assets/" + namespace.origin + "/lang/en_us.json");
+      var resource = modFile.getFile().getSecureJar()
+          .getPath("/assets/" + namespace.origin + "/lang/" + lang + ".json");
       result.putAll(decode(resource, namespace.origin));
     } catch (IOException error) {
     }

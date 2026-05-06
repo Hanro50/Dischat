@@ -1,10 +1,12 @@
 package za.net.hanro50.dischat.core;
 
+import java.awt.Color;
 import java.lang.reflect.Type;
 import java.net.http.HttpClient;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +52,28 @@ public class Constants {
   public static final SecureRandom random = new SecureRandom();
   public static final HttpClient HTTP_CLIENT = HttpClient.newHttpClient();
 
-  public static HashMap<String, String> AdvancementColorDict = new HashMap<>();
-
   public static Core core;
+
+  private static HashMap<String, String> AdvancementColorDict = new HashMap<>();
+
+  private static String getHexColorFromString(String input) {
+    if (input == null || input.isEmpty()) {
+      return "#0000ff";
+    }
+    // Seed the generator so the same string always yields the same color
+    Random random = new Random(input.hashCode());
+    float hue = random.nextFloat();
+
+    // Fix saturation and brightness at 85% for vibrant UI elements
+    Color color = Color.getHSBColor(hue, 0.85f, 0.85f);
+
+    // Extract RGB and format to Hex
+    return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+  }
+
+  public static String getAdvancementString(String category) {
+    return AdvancementColorDict.getOrDefault(category.toLowerCase(), getHexColorFromString(category));
+  }
 
   static {
     /**
@@ -95,5 +116,9 @@ public class Constants {
     AdvancementColorDict.put("farmersdelight:main", "#ad8d54");
     AdvancementColorDict.put("mutantmonsters", "#00ff00");
     AdvancementColorDict.put("twilightforest", "#00eb89ff");
+
+    AdvancementColorDict.put("cobblemon", "#ff0000");
+    AdvancementColorDict.put("aeronautics", "#82C8E5");
   }
+
 }
