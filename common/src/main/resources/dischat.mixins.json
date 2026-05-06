@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "za.net.hanro50.dischat.mixin",
-  "compatibilityLevel": "JAVA_25",
+  "compatibilityLevel": "JAVA_21",
   "mixins": ["MinecraftServerAccessor"],
   "client": [],
   "server": [
