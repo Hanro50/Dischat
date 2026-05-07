@@ -5,7 +5,7 @@ public interface InfoProvider {
   public static class Result {
     public int maxPlayers;
     public int onlinePlayerCount;
-    public float tps;
+    public double tps;
     public byte[] icon;
   }
 

@@ -20,10 +20,14 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.util.CachedServerIcon;
+
+import com.google.common.io.Files;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -41,12 +45,16 @@ import za.net.hanro50.dischat.core.Chater;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Core;
 import za.net.hanro50.dischat.core.Deathcause;
+import za.net.hanro50.dischat.core.InfoProvider;
 import za.net.hanro50.dischat.core.Lexicon;
 import za.net.hanro50.dischat.core.NamespaceContainer;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.format.Style;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -56,6 +64,9 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 
 public class DisChat extends JavaPlugin implements Listener {
+  File serverImage = new java.io.File("server-icon.png");
+  private CachedServerIcon customIcon;
+
   @Override
   public void onEnable() {
     Bukkit.getPluginManager().registerEvents(this, this);
@@ -63,8 +74,58 @@ public class DisChat extends JavaPlugin implements Listener {
       Constants.core.kill();
     this.getCommand("linkme").setExecutor(new LinkMeCommand());
 
-    Constants.core = new Core(Path.of(this.getDataFolder().toURI()), this::broadcastChatMessage);
+    Constants.core = new Core(Path.of(this.getDataFolder().toURI()), this::onLaunch);
     Constants.core.setLexicon(new Lexicon(this.getServer().getVersion(), Constants.core.config.lang));
+  }
+
+  private void onLaunch(Core core) {
+    core.addSetIconListener(this::setStatusIcon);
+    core.setChatReponder(this::broadcastChatMessage);
+    core.setInfoProvider(this::getInfo);
+    core.updateIcon();
+  }
+
+  private void setStatusIcon(Path path) {
+
+    BufferedImage bufferedImage;
+    try {
+      bufferedImage = ImageIO.read(path.toFile());
+      serverImage = new File(this.getDataFolder(), "server.png");
+
+      BufferedImage outputImage = new BufferedImage(64, 64, bufferedImage.getType());
+      Graphics2D g2d = outputImage.createGraphics();
+      g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+      g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+      g2d.drawImage(bufferedImage, 0, 0, 64, 64, null);
+      g2d.dispose();
+
+      ImageIO.write(outputImage, "PNG", serverImage);
+      this.customIcon = Bukkit.loadServerIcon(outputImage);
+    } catch (Exception e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  private InfoProvider.Result getInfo() {
+    var info = new InfoProvider.Result();
+    if (Bukkit.getServer() == null)
+      return null;
+
+    double[] tps = this.getServer().getTPS();
+    info.tps = tps[0]; // Average TPS (1 minute)
+    info.maxPlayers = this.getServer().getMaxPlayers();
+    info.onlinePlayerCount = this.getServer().getOnlinePlayers().size();
+
+    try {
+      if (serverImage.exists())
+        info.icon = java.nio.file.Files.readAllBytes(serverImage.toPath());
+    } catch (java.io.IOException e) {
+    }
+
+    return info;
   }
 
   private String getMcUsername(Chater chater) {
@@ -309,4 +370,10 @@ public class DisChat extends JavaPlugin implements Listener {
     Constants.core.sendChat(new Chater(player.getUniqueId().toString(), player.getName()), event.getMessage());
   }
 
+  @EventHandler
+  public void onServerPing(ServerListPingEvent event) {
+    if (customIcon != null)
+      event.setServerIcon(customIcon);
+
+  }
 }
