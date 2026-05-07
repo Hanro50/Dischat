@@ -39,7 +39,7 @@ public class Config {
   @Expose
   public float statusUpdateInterval = 62.512f;
   @Expose
-  String DO_NOT_CHANGE_VERSION = "1.0.7";
+  String DO_NOT_CHANGE_VERSION = Constants.VERSION;
 
   public static Config deserialize(File file) {
     final Config result = new Config();

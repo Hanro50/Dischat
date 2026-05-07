@@ -1,5 +1,5 @@
 name: MDCB
-version: 1.0.0
+version: ${mod_version}
 main: za.net.hanro50.dischat.paper.DisChat
 description: A Discord chat bridge.
 author: hanro50

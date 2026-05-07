@@ -1,12 +1,17 @@
 package za.net.hanro50.dischat.core;
 
 import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.net.http.HttpClient;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +79,18 @@ public class Constants {
   public static String getAdvancementString(String category) {
     return AdvancementColorDict.getOrDefault(category.toLowerCase(), getHexColorFromString(category));
   }
+
+  static private String getJarVersion() {
+    try (InputStream is = Constants.class.getResourceAsStream("/version")) {
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+        return reader.lines().collect(Collectors.joining("\n"));
+      }
+    } catch (Exception e) {
+      return "Unknown";
+    }
+  }
+
+  public static final String VERSION = getJarVersion();
 
   static {
     /**

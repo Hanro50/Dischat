@@ -70,7 +70,7 @@ description = '''${mod_description}'''
     # AFTER - This mod is loaded AFTER the dependency
     ordering="NONE"
     # Side this dependency is applied on - BOTH, CLIENT, or SERVER
-    side="BOTH"
+    side="SERVER"
 
 [[dependencies.${mod_id}]]
     modId="minecraft"
@@ -78,7 +78,7 @@ description = '''${mod_description}'''
     # This version range declares a minimum of the current minecraft version up to but not including the next major version
     versionRange="${minecraft_version_range}"
     ordering="NONE"
-    side="BOTH"
+    side="SERVER"
 
 [[dependencies.${mod_id}]]
     modId="${mod_id}_common"
@@ -86,14 +86,14 @@ description = '''${mod_description}'''
     # This version range declares a minimum of the current minecraft version up to but not including the next major version
     versionRange="[${mod_version},)"
     ordering="NONE"
-    side="BOTH"
+    side="SERVER"
 
 [[dependencies.${mod_id}]]
     modId="kotlinforforge"
     type="required"
     versionRange="[5.10,)"
     ordering="NONE"
-    side="BOTH"
+    side="SERVER"
 
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
 # Here's another dependency
