@@ -1,6 +1,6 @@
 package za.net.hanro50.dischat.core;
 
-import java.util.Collection;
+import za.net.hanro50.dischat.core.chatx.Message;
 
 public interface ChatConsumer {
 
@@ -15,5 +15,5 @@ public interface ChatConsumer {
     }
   }
 
-  public void accept(Chater chater, String content, Collection<Link> link);
+  public void accept(Chater chater, Message message);
 }

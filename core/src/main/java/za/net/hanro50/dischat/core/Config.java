@@ -11,18 +11,27 @@ import java.nio.file.Path;
 import com.google.gson.annotations.Expose;
 
 public class Config {
+  /** Should use guild icon for server */
   @Expose
   public Boolean useGuildIcon = false;
+  /** Should show Joins in Discord */
   @Expose
   public Boolean joinMessages = true;
+  /** Should show Leaves in Discord */
   @Expose
   public Boolean leaveMessages = true;
+  /** Should show Deaths in Discord */
   @Expose
   public Boolean deathMessages = true;
+  /** Should show advancements in Discord */
   @Expose
   public Boolean advancementMessages = true;
+  /** Should silence embed messages (joins, leaves, advancements, ext) */
   @Expose
   public Boolean silentEmbeds = true;
+  /** Should try to print stickers in Minecraft */
+  @Expose
+  public Boolean printStickers = true;
   @Expose
   public String token = "";
   @Expose

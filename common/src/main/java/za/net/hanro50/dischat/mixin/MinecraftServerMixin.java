@@ -11,7 +11,8 @@ import za.net.hanro50.dischat.core.Constants;
 public class MinecraftServerMixin {
   @Inject(method = "stopServer", at = @At(value = "HEAD"))
   private void stopServer(CallbackInfo info) {
-    Thread.startVirtualThread(
-        () -> Constants.core.kill());
+    if (Constants.core != null)
+      Thread.startVirtualThread(
+          () -> Constants.core.kill());
   }
 }

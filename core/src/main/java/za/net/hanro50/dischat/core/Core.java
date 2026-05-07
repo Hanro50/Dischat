@@ -21,6 +21,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
 import net.dv8tion.jda.api.entities.sticker.StickerItem;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.update.GuildUpdateIconEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -33,6 +34,8 @@ import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import za.net.hanro50.dischat.core.ChatConsumer.Link;
+import za.net.hanro50.dischat.core.chatx.Message;
+import za.net.hanro50.dischat.core.chatx.MessageLib;
 
 import java.awt.Color;
 
@@ -189,6 +192,11 @@ public class Core {
     }
 
     @Override
+    public void onGuildUpdateIcon(GuildUpdateIconEvent event) {
+      Thread.startVirtualThread(() -> updateIcon());
+    }
+
+    @Override
     public void onMessageReceived(MessageReceivedEvent event) {
       if (!active)
         return;
@@ -226,25 +234,9 @@ public class Core {
 
       Chater chater = new Chater(member.getIdLong(), member.getEffectiveName());
       chater.minecraftID = parent.data.DiscordToMinecraft.get(member.getIdLong());
-      List<Link> links = new ArrayList<>();
-      int index = 0;
-      for (StickerItem sticker : stickers) {
-        Link link = new Link();
-        link.link = sticker.getIconUrl();
-        link.name = sticker.getName();
-        link.id = index++;
-        links.add(link);
-      }
 
-      for (Attachment attachment : attachments) {
-        Link link = new Link();
-        link.link = attachment.getUrl();
-        link.name = attachment.getFileName();
-        link.id = index++;
-        links.add(link);
-
-      }
-      this.parent.onRespond.accept(chater, content, links);
+      var data = MessageLib.build(chater, event.getMessage());
+      this.parent.onRespond.accept(chater, data);
     }
   }
 
@@ -496,7 +488,11 @@ public class Core {
     Thread.startVirtualThread(
         () -> {
           try {
-            icon.accept(this.channel.getGuild().getIcon().downloadToPath().get());
+            Path targetFile = Path.of(System.getProperty("java.io.tmpdir"),
+                "guild_icon_" + this.channel.getGuild().getId() + ".png");
+
+            icon.accept(
+                this.channel.getGuild().getIcon().downloadToPath(targetFile).get());
           } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
           }

@@ -59,8 +59,9 @@ public class Dischat {
 
           var config = server.getFile("config/" + Constants.MOD_ID).toAbsolutePath();
           Constants.core = new Core(config, Universal::broadcastChatMessage, Universal::getInfo);
-          Constants.core.setLexicon(new NeoForgeLexicon(server.getServerVersion(), Constants.core.config.lang));
           Universal.setIconUpdateListener();
+          Constants.core.setLexicon(new NeoForgeLexicon(server.getServerVersion(), Constants.core.config.lang));
+          Constants.core.updateIcon();
         });
 
   }

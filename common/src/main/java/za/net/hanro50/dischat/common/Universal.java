@@ -5,8 +5,12 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
@@ -21,10 +25,11 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.resources.ResourceLocation;
 
@@ -35,7 +40,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import za.net.hanro50.dischat.core.ChatConsumer.Link;
+import za.net.hanro50.dischat.core.chatx.ColorText;
+import za.net.hanro50.dischat.core.chatx.LinkText;
+import za.net.hanro50.dischat.core.chatx.Mention;
+import za.net.hanro50.dischat.core.chatx.Message;
 import za.net.hanro50.dischat.core.Chater;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Deathcause;
@@ -48,6 +56,61 @@ import za.net.hanro50.dischat.mixin.MinecraftServerAccessor;
  */
 public class Universal {
   static MinecraftServer server;
+
+  private static Component imageToComponent(LinkText link) throws IOException, URISyntaxException {
+    BufferedImage image;
+    int width = 32;
+    int height = 16;
+    URL url = new URI(link.url).toURL();
+    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+    // Emulate a standard browser agent to prevent 403 Forbidden errors from hosts
+    connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+    connection.setConnectTimeout(1000);
+    connection.setReadTimeout(1000);
+
+    try (InputStream in = connection.getInputStream()) {
+      image = ImageIO.read(in);
+
+      if (image == null)
+        throw new IOException("URL did not point to a valid image payload.");
+
+      BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+      Graphics2D g2d = resized.createGraphics();
+      java.awt.Image scaled = image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
+
+      g2d.drawImage(scaled, 0, 0, null);
+      g2d.dispose();
+
+      image = resized;
+    } finally {
+      connection.disconnect();
+    }
+
+    MutableComponent finalComponent = Component.literal(link.content).withStyle((style) -> {
+      return style.withColor(ChatFormatting.GREEN)
+          .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link.url))
+          .withHoverEvent(
+              new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.link.open")))
+          .withInsertion(link.url);
+    });
+    for (int y = 0; y < height; y++) {
+      finalComponent.append(Component.literal("\n"));
+      for (int x = 0; x < width; x++) {
+        final int rgb = image.getRGB(x, y);
+
+        MutableComponent pixel = Component.literal("█")
+            .withStyle(style -> style
+                .applyFormat(ChatFormatting.BOLD)
+                .withColor(TextColor.fromRgb(rgb))
+                .withFont(ResourceLocation.withDefaultNamespace("uniform")));
+
+        finalComponent.append(pixel);
+      }
+    }
+
+    return finalComponent;
+  }
 
   public static void setStatusIcon(Path path) {
     try {
@@ -69,7 +132,6 @@ public class Universal {
 
       ((MinecraftServerAccessor) server)
           .dischat$setStatusIcon(new ServerStatus.Favicon(byteArrayOutputStream.toByteArray()));
-
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -77,8 +139,7 @@ public class Universal {
   }
 
   public static void setIconUpdateListener() {
-    Thread.startVirtualThread(
-        () -> Constants.core.addSetIconListener(path -> setStatusIcon(path)));
+    Constants.core.addSetIconListener(path -> setStatusIcon(path));
   }
 
   public static void setServer(MinecraftServer server) {
@@ -106,45 +167,67 @@ public class Universal {
     return info;
   }
 
-  public static void broadcastChatMessage(Chater chater, String message, Collection<Link> links) {
+  private static String getMcUsername(Chater chater) {
+    if (chater.minecraftID != null) {
+      UUID uuid = UUID.fromString(chater.minecraftID);
+      if (server.getProfileCache().get(uuid).isPresent()) {
+        GameProfile user = server.getProfileCache().get(uuid).get();
+        return user.getName();
+      }
+    }
+    return chater.name;
+  }
+
+  public static void broadcastChatMessage(Chater chater, Message message) {
+
     Thread.startVirtualThread(
         () -> {
           if (server == null)
             return;
-          PlayerChatMessage chatMessage;
-          String name = chater.name;
-          if (chater.minecraftID != null) {
-            UUID uuid = UUID.fromString(chater.minecraftID);
-            if (server.getProfileCache().get(uuid).isPresent()) {
-              GameProfile user = server.getProfileCache().get(uuid).get();
-              name = user.getName();
+
+          var base = Component.empty();
+
+          for (var element : message.elements) {
+            if (element instanceof Mention mention) {
+              var chatter = "@" + getMcUsername(mention.person);
+              var display = Component.literal(chatter).withStyle(ChatFormatting.BOLD);
+              if (mention.color != null)
+                display = display.withColor(mention.color.getRGB());
+
+              base.append(display);
+              continue;
             }
+            if (element instanceof LinkText link) {
+
+              if (link.sticker) {
+                try {
+                  base.append(imageToComponent(link));
+                  continue;
+                } catch (Throwable e) {
+                }
+              }
+              base.append(Component.literal(link.content).withStyle((style) -> {
+                return style.withColor(ChatFormatting.GREEN)
+                    .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link.url))
+                    .withHoverEvent(
+                        new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.link.open")))
+                    .withInsertion(link.url);
+              }));
+
+              continue;
+            }
+            if (element instanceof ColorText text) {
+              var display = Component.literal(text.content).withStyle(ChatFormatting.BOLD);
+              if (text.color != null)
+                display = display.withColor(text.color.getRGB());
+              base.append(display);
+              continue;
+            }
+            base.append(Component.literal(element.content));
           }
 
-          if (links.size() > 0) {
-            chatMessage = PlayerChatMessage.system("");
-
-            String text = message;
-            if (text.length() > 0)
-              text += "\n";
-
-            chatMessage = chatMessage.withUnsignedContent(
-                Component.literal(text).append(
-                    ComponentUtils.formatAndSortList(links, (Link link) -> {
-                      return Component.literal("[" + link.name + "]").withStyle((style) -> {
-                        return style.withColor(ChatFormatting.GREEN)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link.link))
-                            .withHoverEvent(
-                                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.link.open")))
-                            .withInsertion(link.link);
-                      });
-                    })));
-
-          } else {
-            chatMessage = PlayerChatMessage.system(message);
-          }
-          final var fname = name;
-          final var fchatMessage = chatMessage;
+          final var fname = getMcUsername(chater);
+          final var fchatMessage = PlayerChatMessage.system("").withUnsignedContent(base);
           server.getPlayerList().getPlayers().forEach((serverplayer) -> {
             OutgoingChatMessage outgoingChatMessage = OutgoingChatMessage.create(fchatMessage);
 

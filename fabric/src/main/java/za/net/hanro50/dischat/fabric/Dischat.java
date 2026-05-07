@@ -36,6 +36,7 @@ public class Dischat implements DedicatedServerModInitializer {
     ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
       Universal.setServer(server);
       Universal.setIconUpdateListener();
+      Constants.core.updateIcon();
     });
 
     ServerMessageEvents.CHAT_MESSAGE
