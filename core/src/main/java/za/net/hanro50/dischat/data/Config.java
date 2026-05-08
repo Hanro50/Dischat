@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat.core;
+package za.net.hanro50.dischat.data;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.google.gson.annotations.Expose;
+
+import za.net.hanro50.dischat.core.Constants;
 
 public class Config {
   /** Should use guild icon for server */
@@ -29,13 +31,10 @@ public class Config {
   /** Should silence embed messages (joins, leaves, advancements, ext) */
   @Expose
   public Boolean silentEmbeds = true;
-  /** Should try to print stickers in Minecraft */
-  @Expose
-  public Boolean printStickers = true;
   @Expose
   public String token = "";
   @Expose
-  public String lang = "en_gb";
+  public String lang = "en_us";
   @Expose
   public float statusUpdateInterval = 62.512f;
   @Expose

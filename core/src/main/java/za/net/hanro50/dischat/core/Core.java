@@ -21,13 +21,23 @@ import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChanne
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.CommandCreateAction;
+import za.net.hanro50.dischat.data.Config;
+import za.net.hanro50.dischat.data.Storage;
+import za.net.hanro50.dischat.objects.ChatConsumer;
+import za.net.hanro50.dischat.objects.Chater;
+import za.net.hanro50.dischat.objects.Deathcause;
+import za.net.hanro50.dischat.objects.InfoProvider;
+import za.net.hanro50.dischat.objects.WebhookObjects;
+import za.net.hanro50.dischat.lang.Lexicon;
+import za.net.hanro50.dischat.lang.NamespaceContainer;
+
 import java.awt.Color;
 
 public class Core {
   Consumer<Core> onLaunch;
 
   JDA jda;
-  public Data data;
+  public Storage data;
   public Config config;
   boolean active = false;
   ApplicationInfo info;
@@ -77,7 +87,7 @@ public class Core {
 
     config = Config.deserialize(new File(file, "config.json"));
 
-    data = Data.deserialize(new File(file, "data.json"));
+    data = Storage.deserialize(new File(file, "data.json"));
 
     if (config.token.length() < 5) {
       Constants.LOGGER.error("Invalid token. Please provide a valid discord token. \nConfig file:"
@@ -91,7 +101,7 @@ public class Core {
           try {
             jda = JDABuilder.createLight(config.token, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT,
                 GatewayIntent.GUILD_WEBHOOKS, GatewayIntent.GUILD_MEMBERS)
-                .addEventListeners(new MessageReceiveListener(this))
+                .addEventListeners(new DiscordListener(this))
                 .build();
 
             jda.awaitReady();

@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat.core;
+package za.net.hanro50.dischat.lang;
 
 import java.io.IOException;
 import java.net.URI;
@@ -11,6 +11,7 @@ import java.util.Map;
 
 import com.google.gson.annotations.Expose;
 
+import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Constants.MapContainer;
 
 public class Lexicon {
@@ -66,7 +67,6 @@ public class Lexicon {
   }
 
   public String retrieve(NamespaceContainer namespace) {
-
     var language = info.get(namespace.origin);
     if (language == null) {
       Constants.LOGGER.warn("Could not find language for origin " + namespace.origin);
@@ -90,6 +90,10 @@ public class Lexicon {
 
   public Lexicon(String version, String code) {
     this.lang = code;
+    if (this.lang.equals("en_us")) {
+      Constants.LOGGER.warn("Using US language file.");
+      return;
+    }
     try {
       var manifestRequest = HttpRequest.newBuilder()
           .uri(URI.create("https://launchermeta.mojang.com/mc/game/version_manifest_v2.json"))

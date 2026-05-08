@@ -1,6 +1,6 @@
-package za.net.hanro50.dischat.core;
+package za.net.hanro50.dischat.objects;
 
-import za.net.hanro50.dischat.core.chatx.Message;
+import za.net.hanro50.dischat.chatx.Message;
 
 public interface ChatConsumer {
 

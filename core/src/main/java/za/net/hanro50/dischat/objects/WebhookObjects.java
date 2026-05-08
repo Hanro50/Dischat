@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat.core;
+package za.net.hanro50.dischat.objects;
 
 import java.io.IOException;
 import java.net.URI;
@@ -6,6 +6,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 import com.google.gson.annotations.Expose;
+
+import za.net.hanro50.dischat.core.Constants;
 
 public class WebhookObjects {
   @Expose()

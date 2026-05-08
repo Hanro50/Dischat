@@ -17,7 +17,7 @@ public class Mappings {
         return "death.attack.dragonBreath";
       case DROWNING: // DROWNING("death.attack.drown"),
         return "death.attack.drown";
-      case DRYOUT:
+      case DRYOUT:// DRYOUT("death.attack.dryout"),
         return "death.attack.drown";
       case ENTITY_ATTACK: // ENTITY_ATTACK("death.attack.mob"),
         return "death.attack.mob";
@@ -61,15 +61,15 @@ public class Mappings {
         return "death.attack.outOfWorld";
       case WITHER: // WITHER("death.attack.wither"),
         return "death.attack.wither";
-      case FREEZE:
+      case FREEZE: // FREEZE("death.attack.freeze"),
         return "death.attack.freeze";
-      case SONIC_BOOM:
+      case SONIC_BOOM: // SONIC_BOOM("death.attack.sonic_boom"),
         return "death.attack.sonic_boom";
-      case CAMPFIRE:
+      case CAMPFIRE: // CAMPFIRE("death.attack.campfire"),
         return "death.attack.campfire";
-      case KILL:
+      case KILL: // KILL("death.attack.genericKill"),
         return "death.attack.genericKill";
-      case WORLD_BORDER:
+      case WORLD_BORDER:// WORLD_BORDER("death.attack.outsideBorder"),
         return "death.attack.outsideBorder";
       default:
         return "death.attack.generic";

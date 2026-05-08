@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat.core.chatx;
+package za.net.hanro50.dischat.chatx;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import za.net.hanro50.dischat.core.Chater;
 import za.net.hanro50.dischat.core.Constants;
+import za.net.hanro50.dischat.objects.Chater;
 
 public class MessageLib {
   static private PlainText parseLink(String token) {
@@ -19,9 +19,9 @@ public class MessageLib {
     var parts = token.split("\\]\\(");
 
     if (parts.length != 2 || parts[0].startsWith("http"))
-      return new LinkText(token, false);
+      return new LinkText(token);
 
-    return new LinkText(parts[0], parts[1], false);
+    return new LinkText(parts[0], parts[1]);
 
   }
 
@@ -40,10 +40,10 @@ public class MessageLib {
     var replacements = new HashMap<String, PlainText>();
 
     for (var emote : mentions.getCustomEmojis())
-      replacements.put(emote.getAsMention(), new LinkText(":" + emote.getName() + ":", emote.getImageUrl(), false));
+      replacements.put(emote.getAsMention(), new LinkText(":" + emote.getName() + ":", emote.getImageUrl()));
 
     for (var channel : mentions.getChannels())
-      replacements.put(channel.getAsMention(), new LinkText("#" + channel.getName(), channel.getJumpUrl(), false));
+      replacements.put(channel.getAsMention(), new LinkText("#" + channel.getName(), channel.getJumpUrl()));
 
     for (var role : mentions.getRoles())
       replacements.put(role.getAsMention(), new ColorText("@" + role.getName(), role.getColor()));
@@ -64,7 +64,7 @@ public class MessageLib {
       if (token.startsWith("[") && token.endsWith(")"))
         items.add(parseLink(token));
       else if (token.startsWith("http://") || token.startsWith("https://"))
-        items.add(new LinkText(token, false));
+        items.add(new LinkText(token));
       else
         items.add(replacements.getOrDefault(token, new ColorText(token, Color.red)));
 
@@ -78,11 +78,16 @@ public class MessageLib {
       var link = sticker.getIconUrl();
       if (link.endsWith(".gif"))
         link.substring(0, link.length() - 4);
-      items.add(new LinkText("[" + sticker.getName() + "]", link, Constants.core.config.printStickers));
+      items.add(new LinkText("[" + sticker.getName() + "]", link));
     }
 
-    for (var attachment : base.getAttachments())
-      items.add(new LinkText("[" + attachment.getFileName() + "]", attachment.getProxyUrl(), false));
+    if (!base.getAttachments().isEmpty() && !items.isEmpty())
+      items.add(new PlainText("\n"));
+
+    for (var attachment : base.getAttachments()) {
+      items.add(new LinkText("[" + attachment.getFileName() + "]", attachment.getProxyUrl()));
+      items.add(new PlainText(" "));
+    }
 
     return new Message(chater, items);
   }

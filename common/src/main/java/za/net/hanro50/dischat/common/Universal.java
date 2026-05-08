@@ -26,10 +26,8 @@ import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.protocol.status.ServerStatus;
 import net.minecraft.resources.ResourceLocation;
 
@@ -40,16 +38,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import za.net.hanro50.dischat.core.chatx.ColorText;
-import za.net.hanro50.dischat.core.chatx.LinkText;
-import za.net.hanro50.dischat.core.chatx.Mention;
-import za.net.hanro50.dischat.core.chatx.Message;
-import za.net.hanro50.dischat.core.Chater;
+import za.net.hanro50.dischat.chatx.ColorText;
+import za.net.hanro50.dischat.chatx.LinkText;
+import za.net.hanro50.dischat.chatx.Mention;
+import za.net.hanro50.dischat.chatx.Message;
+import za.net.hanro50.dischat.objects.Chater;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Core;
-import za.net.hanro50.dischat.core.Deathcause;
-import za.net.hanro50.dischat.core.InfoProvider;
-import za.net.hanro50.dischat.core.NamespaceContainer;
+import za.net.hanro50.dischat.objects.Deathcause;
+import za.net.hanro50.dischat.objects.InfoProvider;
+import za.net.hanro50.dischat.lang.NamespaceContainer;
 import za.net.hanro50.dischat.mixin.MinecraftServerAccessor;
 
 /**
@@ -57,62 +55,6 @@ import za.net.hanro50.dischat.mixin.MinecraftServerAccessor;
  */
 public class Universal {
   static MinecraftServer server;
-
-  private static Component imageToComponent(LinkText link) throws IOException, URISyntaxException {
-    BufferedImage image;
-    int width = 32;
-    int height = 16;
-    URL url = new URI(link.url).toURL();
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-    // Emulate a standard browser agent to prevent 403 Forbidden errors from hosts
-    connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-    connection.setConnectTimeout(1000);
-    connection.setReadTimeout(1000);
-
-    try (InputStream in = connection.getInputStream()) {
-      image = ImageIO.read(in);
-
-      if (image == null)
-        throw new IOException("URL did not point to a valid image payload.");
-
-      BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-      Graphics2D g2d = resized.createGraphics();
-      java.awt.Image scaled = image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
-
-      g2d.drawImage(scaled, 0, 0, null);
-      g2d.dispose();
-
-      image = resized;
-    } finally {
-      connection.disconnect();
-    }
-
-    MutableComponent finalComponent = Component.empty().append(
-        Component.literal(link.content).withStyle((style) -> {
-          return style.withColor(ChatFormatting.GREEN)
-              .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link.url))
-              .withHoverEvent(
-                  new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.link.open")))
-              .withInsertion(link.url);
-        }));
-    for (int y = 0; y < height; y++) {
-      finalComponent.append(Component.literal("\n"));
-      for (int x = 0; x < width; x++) {
-        final int rgb = image.getRGB(x, y);
-
-        MutableComponent pixel = Component.literal("█")
-            .withStyle(style -> style
-                .applyFormat(ChatFormatting.BOLD)
-                .withColor(TextColor.fromRgb(rgb))
-                .withFont(ResourceLocation.withDefaultNamespace("uniform")));
-
-        finalComponent.append(pixel);
-      }
-    }
-
-    return finalComponent;
-  }
 
   private static void setStatusIcon(Path path) {
     try {
@@ -187,13 +129,6 @@ public class Universal {
             }
             if (element instanceof LinkText link) {
 
-              if (link.sticker) {
-                try {
-                  base.append(imageToComponent(link));
-                  continue;
-                } catch (Throwable e) {
-                }
-              }
               base.append(Component.literal(link.content).withStyle((style) -> {
                 return style.withColor(ChatFormatting.GREEN)
                     .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link.url))

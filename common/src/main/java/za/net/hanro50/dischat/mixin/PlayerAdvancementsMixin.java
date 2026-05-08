@@ -14,7 +14,7 @@ import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
-import za.net.hanro50.dischat.core.Chater;
+import za.net.hanro50.dischat.objects.Chater;
 import za.net.hanro50.dischat.core.Constants;
 
 @Mixin(PlayerAdvancements.class)

@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat.core.chatx;
+package za.net.hanro50.dischat.chatx;
 
 import com.google.gson.annotations.Expose;
 

@@ -134,7 +134,7 @@ public class Constants {
     AdvancementColorDict.put("mutantmonsters", "#00ff00");
     AdvancementColorDict.put("twilightforest", "#00eb89ff");
 
-    AdvancementColorDict.put("cobblemon", "#ff0000");
+    AdvancementColorDict.put("cobblemon", "#3B4CCA");
     AdvancementColorDict.put("aeronautics", "#82C8E5");
   }
 

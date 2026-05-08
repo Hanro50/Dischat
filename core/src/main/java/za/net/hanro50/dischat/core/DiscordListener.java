@@ -17,13 +17,14 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import za.net.hanro50.dischat.core.chatx.MessageLib;
+import za.net.hanro50.dischat.chatx.MessageLib;
+import za.net.hanro50.dischat.objects.Chater;
 
-public class MessageReceiveListener extends ListenerAdapter {
+public class DiscordListener extends ListenerAdapter {
 
   Core parent;
 
-  MessageReceiveListener(Core parent) {
+  DiscordListener(Core parent) {
     this.parent = parent;
   }
 

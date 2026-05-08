@@ -1,4 +1,6 @@
-package za.net.hanro50.dischat.core;
+package za.net.hanro50.dischat.objects;
+
+import za.net.hanro50.dischat.lang.NamespaceContainer;
 
 public class Deathcause {
   public NamespaceContainer cause;

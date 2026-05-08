@@ -1,10 +1,10 @@
-package za.net.hanro50.dischat.core.chatx;
+package za.net.hanro50.dischat.chatx;
 
 import java.awt.Color;
 
 import com.google.gson.annotations.Expose;
 
-import za.net.hanro50.dischat.core.Chater;
+import za.net.hanro50.dischat.objects.Chater;
 
 public class Mention extends ColorText {
   @Expose

@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat.core;
+package za.net.hanro50.dischat.objects;
 
 import com.google.gson.annotations.Expose;
 

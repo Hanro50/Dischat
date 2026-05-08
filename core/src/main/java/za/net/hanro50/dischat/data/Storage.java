@@ -1,4 +1,4 @@
-package za.net.hanro50.dischat.core;
+package za.net.hanro50.dischat.data;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -11,7 +11,9 @@ import java.util.function.Consumer;
 
 import com.google.gson.annotations.Expose;
 
-public final class Data {
+import za.net.hanro50.dischat.core.Constants;
+
+public final class Storage {
 
   @Expose
   public String infoMessage; // Stored as <channelID>-<messageID>
@@ -23,22 +25,22 @@ public final class Data {
   public HashMap<String, String> LinkPlayer = new HashMap<>();
   protected File file;
 
-  public Data() {
+  public Storage() {
   }
 
-  public Data(File file) {
+  public Storage(File file) {
     this.file = file;
   }
 
-  public static Data deserialize(File file) {
+  public static Storage deserialize(File file) {
     if (!file.exists())
-      return new Data(file);
+      return new Storage(file);
     try {
       Path path = Path.of(file.toURI());
 
       String info = Files.readString(path);
 
-      Data data = Constants.GSON.fromJson(info, Data.class);
+      Storage data = Constants.GSON.fromJson(info, Storage.class);
 
       data.DiscordToMinecraft.forEach((v, k) -> data.MinecraftToDiscord.put(k, v));
       data.file = file;
@@ -48,7 +50,7 @@ public final class Data {
       exception.printStackTrace();
     }
 
-    return new Data(file);
+    return new Storage(file);
   }
 
   public void requestLink(String uuid, Consumer<String> callback) {

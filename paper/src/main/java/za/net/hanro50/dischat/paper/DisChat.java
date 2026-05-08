@@ -1,7 +1,6 @@
 package za.net.hanro50.dischat.paper;
 
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -27,8 +26,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.util.CachedServerIcon;
 
-import com.google.common.io.Files;
-
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
@@ -37,30 +34,21 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import za.net.hanro50.dischat.core.chatx.ColorText;
-import za.net.hanro50.dischat.core.chatx.LinkText;
-import za.net.hanro50.dischat.core.chatx.Mention;
-import za.net.hanro50.dischat.core.chatx.Message;
-import za.net.hanro50.dischat.core.Chater;
+import za.net.hanro50.dischat.chatx.ColorText;
+import za.net.hanro50.dischat.chatx.LinkText;
+import za.net.hanro50.dischat.chatx.Mention;
+import za.net.hanro50.dischat.chatx.Message;
+import za.net.hanro50.dischat.objects.Chater;
+import za.net.hanro50.dischat.objects.Deathcause;
+import za.net.hanro50.dischat.objects.InfoProvider;
+import za.net.hanro50.dischat.lang.NamespaceContainer;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Core;
-import za.net.hanro50.dischat.core.Deathcause;
-import za.net.hanro50.dischat.core.InfoProvider;
-import za.net.hanro50.dischat.core.Lexicon;
-import za.net.hanro50.dischat.core.NamespaceContainer;
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.format.Style;
+
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import javax.imageio.ImageIO;
 
 public class DisChat extends JavaPlugin implements Listener {
@@ -75,7 +63,7 @@ public class DisChat extends JavaPlugin implements Listener {
     this.getCommand("linkme").setExecutor(new LinkMeCommand());
 
     Constants.core = new Core(Path.of(this.getDataFolder().toURI()), this::onLaunch);
-    Constants.core.setLexicon(new Lexicon(this.getServer().getVersion(), Constants.core.config.lang));
+    Constants.core.setLexicon(new PaperLexicon(this.getServer().getVersion(), Constants.core.config.lang));
   }
 
   private void onLaunch(Core core) {
@@ -139,67 +127,6 @@ public class DisChat extends JavaPlugin implements Listener {
     return chater.name;
   }
 
-  private static Component imageToComponent(LinkText link) throws IOException, URISyntaxException {
-    BufferedImage image;
-    int width = 32;
-    int height = 16;
-    URL url = new URI(link.url).toURL();
-    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-    connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-    connection.setConnectTimeout(1000);
-    connection.setReadTimeout(1000);
-
-    try (InputStream in = connection.getInputStream()) {
-      image = ImageIO.read(in);
-
-      if (image == null)
-        throw new IOException("URL did not point to a valid image payload.");
-
-      BufferedImage resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-      Graphics2D g2d = resized.createGraphics();
-      java.awt.Image scaled = image.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
-
-      g2d.drawImage(scaled, 0, 0, null);
-      g2d.dispose();
-
-      image = resized;
-    } finally {
-      connection.disconnect();
-    }
-
-    // Use a builder since we will append many pixel child components
-    TextComponent.Builder finalComponentBuilder = Component.text().append(
-        Component.text()
-            .content(link.content)
-            .color(NamedTextColor.GREEN)
-            .clickEvent(ClickEvent.openUrl(link.url))
-            .hoverEvent(HoverEvent.showText(Component.translatable("chat.link.open")))
-            .insertion(link.url));
-
-    // Pre-declare uniform font key to save allocations inside the nested loops
-    Key uniformFont = Key.key(Key.MINECRAFT_NAMESPACE, "uniform");
-
-    for (int y = 0; y < height; y++) {
-      finalComponentBuilder.append(Component.newline());
-
-      for (int x = 0; x < width; x++) {
-        final int rgb = image.getRGB(x, y);
-
-        Component pixel = Component.text("█")
-            .style(Style.style()
-                .decorate(TextDecoration.BOLD)
-                .color(TextColor.color(rgb))
-                .font(uniformFont)
-                .build());
-
-        finalComponentBuilder.append(pixel);
-      }
-    }
-
-    return finalComponentBuilder.build();
-  }
-
   public void broadcastChatMessage(Chater chater, Message message) {
     Thread.startVirtualThread(() -> {
       TextComponent.Builder base = Component.text();
@@ -216,13 +143,6 @@ public class DisChat extends JavaPlugin implements Listener {
           continue;
         }
         if (element instanceof LinkText link) {
-          if (link.sticker) {
-            try {
-              base.append(imageToComponent(link));
-              continue;
-            } catch (Throwable e) {
-            }
-          }
 
           TextComponent linkComponent = Component.text(link.content)
               .color(NamedTextColor.GREEN)
