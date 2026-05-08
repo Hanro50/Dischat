@@ -5,11 +5,6 @@ import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Path;
 import java.util.UUID;
 
@@ -59,7 +54,7 @@ public class Universal {
   private static void setStatusIcon(Path path) {
     try {
       BufferedImage bufferedImage = ImageIO.read(path.toFile());
-      BufferedImage outputImage = new BufferedImage(64, 64, bufferedImage.getType());
+      BufferedImage outputImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
       Graphics2D g2d = outputImage.createGraphics();
       // Set rendering hints for better quality (optional, but recommended)
       g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -76,6 +71,8 @@ public class Universal {
 
       ((MinecraftServerAccessor) server)
           .dischat$setStatusIcon(new ServerStatus.Favicon(byteArrayOutputStream.toByteArray()));
+
+      server.invalidateStatus();
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -224,10 +221,10 @@ public class Universal {
   }
 
   public static void onLaunch(Core core) {
+    Constants.LOGGER.info("Setting up handlers!");
     core.addSetIconListener(Universal::setStatusIcon);
     core.setChatReponder(Universal::broadcastChatMessage);
     core.setInfoProvider(Universal::getInfo);
-    core.updateIcon();
   }
 
   public static void setServer(MinecraftServer server) {

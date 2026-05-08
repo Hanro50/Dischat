@@ -296,21 +296,21 @@ public class Core {
   }
 
   public void updateIcon() {
-    if (!active || channel == null || icon == null || !config.useGuildIcon)
+
+    if (!active || channel == null || icon == null || !config.useGuildIcon) {
+      Constants.LOGGER.debug("Server ICON could not be set :<");
       return;
-    Thread.startVirtualThread(
-        () -> {
-          try {
-            Path targetFile = Path.of(System.getProperty("java.io.tmpdir"),
-                "guild_icon_" + this.channel.getGuild().getId() + ".png");
+    }
+    try {
+      Path targetFile = Path.of(System.getProperty("java.io.tmpdir"),
+          "guild_icon_" + this.channel.getGuild().getId() + ".png");
 
-            icon.accept(
-                this.channel.getGuild().getIcon().downloadToPath(targetFile).get());
-          } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-          }
-        });
-
+      icon.accept(
+          this.channel.getGuild().getIcon().downloadToPath(targetFile).get());
+      Constants.LOGGER.debug("Server icon was set: " + targetFile.toString());
+    } catch (InterruptedException | ExecutionException e) {
+      e.printStackTrace();
+    }
   }
 
   public void addSetIconListener(Consumer<Path> icon) {
