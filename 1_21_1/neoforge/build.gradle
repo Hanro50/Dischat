@@ -88,7 +88,7 @@ neoForge {
         // these are used to tell the game which sources are for which mod
         // multi mod projects should define one per mod
         "${mod_id}_common" {
-          sourceSet(project(":common").sourceSets.main)
+          sourceSet(project(":1_21_1:common").sourceSets.main)
         }
         "${mod_id}" {
           sourceSet(sourceSets.main)
@@ -109,7 +109,7 @@ configurations {
 
 dependencies {
   implementation 'thedarkcolour:kotlinforforge-neoforge:5.10.0'
-  jarJar(implementation(project(":common")))
+  jarJar(implementation(project(":1_21_1:common")))
 
   additionalRuntimeClasspath(project(path:":core", configuration:"shadow_forge"))
   jarJar(implementation(project(path:":core", configuration:"shadow_forge")))

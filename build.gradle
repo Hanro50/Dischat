@@ -1,0 +1,9 @@
+
+allprojects {
+  apply plugin: 'java'
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  dependencies {}
+}
