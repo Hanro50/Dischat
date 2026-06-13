@@ -1,0 +1,19 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "za.net.hanro50.dischat.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [],
+  "client": [],
+  "server": [
+    "PlayerAdvancementsMixin",
+    "MinecraftServerMixin",
+    "MinecraftServerAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "overwrites": {
+    "requireAnnotations": true
+  }
+}

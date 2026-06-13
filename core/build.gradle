@@ -5,6 +5,9 @@ plugins {
 base {
 	archivesName = project.mod_id+"-core"
 }
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+
+
 dependencies {
 	implementation 'com.google.code.gson:gson:2.13.2'
 	implementation("net.dv8tion:JDA:6.0.0") {
