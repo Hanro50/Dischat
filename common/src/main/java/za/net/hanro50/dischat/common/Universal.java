@@ -106,7 +106,6 @@ public class Universal {
   }
 
   private static void broadcastChatMessage(Chater chater, Message message) {
-
     Thread.startVirtualThread(
         () -> {
           if (server == null)
