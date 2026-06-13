@@ -28,5 +28,5 @@ plugins {
 
 include 'core'
 include 'paper'
-include '1_21_1:fabric', '1_21_1:forge'
-include '26_1:fabric', '26_1:forge'
+include '1_21_1:common', '1_21_1:fabric', '1_21_1:forge'
+include '26_1:common','26_1:fabric', '26_1:forge'
