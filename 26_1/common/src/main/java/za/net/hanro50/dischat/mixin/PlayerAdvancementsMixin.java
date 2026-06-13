@@ -11,10 +11,11 @@ import com.llamalad7.mixinextras.sugar.Local;
 
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerPlayer;
-import za.net.hanro50.dischat.objects.Chater;
+import za.net.hanro50.dischat.core.Chater;
 import za.net.hanro50.dischat.core.Constants;
 
 @Mixin(PlayerAdvancements.class)
@@ -28,25 +29,12 @@ public class PlayerAdvancementsMixin {
       @Local(ordinal = 0) AdvancementProgress advancementprogress, @Local(ordinal = 1) boolean bl2) {
     if (!advancementprogress.isDone() || bl2)
       return;
-
     advancementHolder.value().display().ifPresent((displayInfo) -> {
-      if (!displayInfo.shouldAnnounceChat())
+      var nameholder = advancementHolder.value().name();
+      if (!displayInfo.shouldAnnounceChat() || !nameholder.isPresent())
         return;
-
-      var title = "";
-      var titleComponent = displayInfo.getTitle();
-      if (titleComponent.getContents() instanceof TranslatableContents translatable)
-        title = translatable.getKey();
-      else
-        title = titleComponent.getString();
-
-      var discription = "";
-      var descComponent = displayInfo.getDescription();
-      if (descComponent.getContents() instanceof TranslatableContents translatable)
-        discription = translatable.getKey();
-      else
-        discription = descComponent.getString();
-
+      var title = ((TranslatableContents) ((MutableComponent) ((TranslatableContents) nameholder.get().getContents())
+          .getArgs()[0]).getContents()).getKey();
       String[] parts = advancementHolder.id().getPath().split("/");
       String namespace = advancementHolder.id().getNamespace();
       String category = namespace;
@@ -54,7 +42,7 @@ public class PlayerAdvancementsMixin {
         category += ":" + parts[0];
 
       Chater chater = new Chater(this.player.getStringUUID(), this.player.getName().getString());
-      Constants.core.sendAdvancement(chater, namespace, category, title, discription);
+      Constants.core.sendAdvancement(chater, namespace, category, title);
 
     });
 

@@ -2,13 +2,12 @@
   "required": true,
   "minVersion": "0.8",
   "package": "za.net.hanro50.dischat.mixin",
-  "compatibilityLevel": "JAVA_21",
-  "mixins": [],
+  "compatibilityLevel": "JAVA_25",
+  "mixins": ["MinecraftServerAccessor"],
   "client": [],
   "server": [
     "PlayerAdvancementsMixin",
-    "MinecraftServerMixin",
-    "MinecraftServerAccessor"
+    "MinecraftServerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

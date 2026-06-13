@@ -1,29 +1,30 @@
 {
-	"schemaVersion": 1,
-	"id": "${mod_id}",
-	"version": "${mod_version}",
-	"name": "${mod_name}",
-	"description": "${mod_description}",
-	"authors": [
-		"${mod_authors}"
-	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "${mod_license}",
-	"icon": "assets/dischat/icon.png",
-	"environment": "server",
-	"entrypoints": {
-		"server": [
-			"za.net.hanro50.dischat.fabric.Dischat"
-		]
-	},
-	"mixins": ["dischat.mixins.json"],
-	"depends": {
-		"fabricloader": ">=${fabric_loader_version}",
-		"minecraft": "~${minecraft_version}",
-		"java": ">=21",
-		"fabric-api": ">=${fabric_api_version}"
-	}
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_authors}"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "${mod_license}",
+  "icon": "assets/dischat/icon.png",
+  "environment": "server",
+  "entrypoints": {
+    "server": [
+      "za.net.hanro50.dischat.fabric.Dischat"
+    ]
+  },
+  "mixins": [
+    "dischat.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "java": ">=25",
+    "fabric-api": ">=${fabric_api_version}"
+  }
 }

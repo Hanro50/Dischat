@@ -7,8 +7,8 @@ import java.nio.file.Path;
 import net.fabricmc.loader.api.FabricLoader;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Constants.MapContainer;
-import za.net.hanro50.dischat.lang.Lexicon;
-import za.net.hanro50.dischat.lang.NamespaceContainer;
+import za.net.hanro50.dischat.core.Lexicon;
+import za.net.hanro50.dischat.core.NamespaceContainer;
 
 public class FabricLexicon extends Lexicon {
 
@@ -25,13 +25,6 @@ public class FabricLexicon extends Lexicon {
 
   public FabricLexicon(String version, String code) {
     super(version, code);
-
-    if (code.equals("en_us")) {
-      var lang = this.retrieve(NamespaceContainer.literal("entity.minecraft.creeper"));
-      if (lang.equals("entity.minecraft.creeper")) {
-        Constants.LOGGER.error("Lexiconic load failed self test. Please switch selected language :<");
-      }
-    }
   }
 
   public String retrieve(NamespaceContainer namespace) {
