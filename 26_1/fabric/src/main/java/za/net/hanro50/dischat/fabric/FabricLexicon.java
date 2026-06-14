@@ -7,8 +7,8 @@ import java.nio.file.Path;
 import net.fabricmc.loader.api.FabricLoader;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Constants.MapContainer;
-import za.net.hanro50.dischat.core.Lexicon;
-import za.net.hanro50.dischat.core.NamespaceContainer;
+import za.net.hanro50.dischat.lang.Lexicon;
+import za.net.hanro50.dischat.lang.NamespaceContainer;
 
 public class FabricLexicon extends Lexicon {
 

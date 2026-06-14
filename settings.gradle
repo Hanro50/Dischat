@@ -29,7 +29,7 @@ plugins {
 include 'core'
 include 'paper'
 
-def versionGroups = ['1_21_1', '26_1']
+def versionGroups = ['26_1', '1_21_1']
 def requestedTasks = settings.gradle.startParameter.taskNames
 
 // Identify if any task directly names or references a version prefix
@@ -37,9 +37,18 @@ def activeVersion = versionGroups.find { version ->
     requestedTasks.any { task -> task.startsWith(":${version}:") || task.startsWith("${version}:")}
 }
 
+if (!activeVersion) {
+    def versionFile = file("active_version.txt")
+    if (versionFile.exists()) {
+      activeVersion = versionFile.text.trim()
+    } else {
+      activeVersion = versionGroups[0]
+    }
+}
+
 if (activeVersion) {
     include "${activeVersion}:common", "${activeVersion}:fabric", "${activeVersion}:neoforge"
     println "Gradle: Active version group set to [${activeVersion}]. Other versions excluded."
 } else {
-    versionGroups.each { version -> include "${version}"}
+    versionGroups.each { version -> include "${version}:common", "${version}:fabric", "${version}:neoforge"}
 }

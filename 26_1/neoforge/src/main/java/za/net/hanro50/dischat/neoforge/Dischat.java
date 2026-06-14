@@ -15,7 +15,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import za.net.hanro50.dischat.common.Universal;
 import za.net.hanro50.dischat.core.Constants;
 import za.net.hanro50.dischat.core.Core;
@@ -48,19 +48,16 @@ public class Dischat {
 
   // You can use SubscribeEvent and let the Event Bus discover methods to call
   @SubscribeEvent
-  public void onServerStarting(ServerAboutToStartEvent event) {
+  public void onServerStarting(ServerStartedEvent event) {
     var server = event.getServer();
-
     Universal.setServer(server);
-    Thread.startVirtualThread(
-        () -> {
-          Constants.LOGGER
-              .info(event.getServer().getFile("config/" + Constants.MOD_ID).toAbsolutePath().toString());
 
-          var config = server.getFile("config/" + Constants.MOD_ID).toAbsolutePath();
-          Constants.core = new Core(config, Universal::startup);
-          Constants.core.setLexicon(new NeoForgeLexicon(server.getServerVersion(), Constants.core.config.lang));
-        });
+    Constants.LOGGER
+        .info(event.getServer().getFile("config/" + Constants.MOD_ID).toAbsolutePath().toString());
+
+    var config = server.getFile("config/" + Constants.MOD_ID).toAbsolutePath();
+    Constants.core = new Core(config, Universal::onLaunch);
+    Constants.core.setLexicon(new NeoForgeLexicon(server.getServerVersion(), Constants.core.config.lang));
 
   }
 

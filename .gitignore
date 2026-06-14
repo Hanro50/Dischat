@@ -50,3 +50,4 @@ runs/
 forge*changelog.txt
 
 .vscode/launch.json
+active_version.txt

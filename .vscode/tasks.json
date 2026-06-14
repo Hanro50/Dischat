@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "inputs": [
+    {
+      "id": "version",
+      "type": "pickString",
+      "options": ["1_21_1", "26_1"],
+      "description": "Select Minecraft version"
+    }
+  ],
+  "tasks": [
+    {
+      "label": "Workspace Profile: Change target",
+      "type": "shell",
+      "command": "${command:java.clean.workspace}",
+      "problemMatcher": [],
+      "group": { "kind": "build", "isDefault": true },
+      "dependsOn": ["Internal:update-file"],
+      "dependsOrder": "sequence"
+    },
+    {
+      "label": "Internal:update-file",
+      "type": "shell",
+      "command": "echo ${input:version} > ${workspaceFolder}/active_version.txt",
+      "problemMatcher": [],
+      "group": { "kind": "build", "isDefault": false }
+    }
+  ]
+}

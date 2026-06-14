@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
@@ -23,7 +22,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.ChatType;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.OutgoingChatMessage;
 import net.minecraft.network.chat.PlayerChatMessage;
@@ -36,12 +34,16 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import za.net.hanro50.dischat.core.ChatConsumer.Link;
-import za.net.hanro50.dischat.core.Chater;
+import za.net.hanro50.dischat.chatx.ColorText;
+import za.net.hanro50.dischat.chatx.LinkText;
+import za.net.hanro50.dischat.chatx.Mention;
+import za.net.hanro50.dischat.chatx.Message;
+import za.net.hanro50.dischat.objects.Chater;
 import za.net.hanro50.dischat.core.Constants;
-import za.net.hanro50.dischat.core.Deathcause;
-import za.net.hanro50.dischat.core.InfoProvider;
-import za.net.hanro50.dischat.core.NamespaceContainer;
+import za.net.hanro50.dischat.core.Core;
+import za.net.hanro50.dischat.objects.Deathcause;
+import za.net.hanro50.dischat.objects.InfoProvider;
+import za.net.hanro50.dischat.lang.NamespaceContainer;
 import za.net.hanro50.dischat.mixin.MinecraftServerAccessor;
 
 /**
@@ -50,10 +52,10 @@ import za.net.hanro50.dischat.mixin.MinecraftServerAccessor;
 public class Universal {
   static MinecraftServer server;
 
-  public static void setStatusIcon(Path path) {
+  private static void setStatusIcon(Path path) {
     try {
       BufferedImage bufferedImage = ImageIO.read(path.toFile());
-      BufferedImage outputImage = new BufferedImage(64, 64, bufferedImage.getType());
+      BufferedImage outputImage = new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
       Graphics2D g2d = outputImage.createGraphics();
       // Set rendering hints for better quality (optional, but recommended)
       g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -71,29 +73,25 @@ public class Universal {
       ((MinecraftServerAccessor) server)
           .dischat$setStatusIcon(new ServerStatus.Favicon(byteArrayOutputStream.toByteArray()));
 
+      server.invalidateStatus();
     } catch (IOException e) {
       e.printStackTrace();
     }
 
   }
 
-  public static void startup() {
-    Constants.core.addOnChatListener(Universal::broadcastChatMessage);
-    Constants.core.addInfoListener(Universal::getInfo);
-    Constants.core.addSetIconListener(path -> setStatusIcon(path));
+  private static String getMcUsername(Chater chater) {
+    if (chater.minecraftID != null) {
+      UUID uuid = UUID.fromString(chater.minecraftID);
+      if (server.getPlayerList().getPlayer(uuid) != null) {
+        GameProfile user = server.getPlayerList().getPlayer(uuid).getGameProfile();
+        return user.name();
+      }
+    }
+    return chater.name;
   }
 
-  public static void setServer(MinecraftServer server) {
-    Universal.server = server;
-
-  }
-
-  public static void onChatEvent(ServerPlayer player, String message) {
-    Thread.startVirtualThread(
-        () -> Constants.core.sendChat(new Chater(player.getStringUUID(), player.getName().getString()), message));
-  }
-
-  public static InfoProvider.Result getInfo() {
+  private static InfoProvider.Result getInfo() {
     var info = new InfoProvider.Result();
     if (server == null)
       return null;
@@ -108,51 +106,57 @@ public class Universal {
     return info;
   }
 
-  public static void broadcastChatMessage(Chater chater, String message, Collection<Link> links) {
+  private static void broadcastChatMessage(Chater chater, Message message) {
     Thread.startVirtualThread(
         () -> {
           if (server == null)
             return;
-          PlayerChatMessage chatMessage;
-          String name = chater.name;
-          if (chater.minecraftID != null) {
-            UUID uuid = UUID.fromString(chater.minecraftID);
-            var player = server.getPlayerList().getPlayer(uuid);
-            if (player != null) {
-              GameProfile user = player.getGameProfile();
-              name = user.name();
+
+          var base = Component.empty();
+
+          for (var element : message.elements) {
+            if (element instanceof Mention mention) {
+              var chatter = "@" + getMcUsername(mention.person);
+              var display = Component.literal(chatter).withStyle(ChatFormatting.BOLD);
+              if (mention.color != null)
+                display = display.withColor(mention.color.getRGB());
+
+              base.append(display);
+              continue;
             }
+            if (element instanceof LinkText link) {
+
+              base.append(Component.literal(link.content).withStyle((style) -> {
+                try {
+                  return style.withColor(ChatFormatting.GREEN)
+                      .withClickEvent(new ClickEvent.OpenUrl(new URI(link.url)))
+                      .withHoverEvent(
+                          new HoverEvent.ShowText(Component.translatable("chat.link.open")))
+                      .withInsertion(link.url);
+                } catch (URISyntaxException e) {
+                  e.printStackTrace();
+                }
+                return style.withColor(ChatFormatting.GREEN)
+                    .withClickEvent(new ClickEvent.CopyToClipboard(link.url))
+                    .withHoverEvent(
+                        new HoverEvent.ShowText(Component.translatable("chat.link.open")))
+                    .withInsertion(link.url);
+              }));
+
+              continue;
+            }
+            if (element instanceof ColorText text) {
+              var display = Component.literal(text.content).withStyle(ChatFormatting.BOLD);
+              if (text.color != null)
+                display = display.withColor(text.color.getRGB());
+              base.append(display);
+              continue;
+            }
+            base.append(Component.literal(element.content));
           }
 
-          if (links.size() > 0) {
-            chatMessage = PlayerChatMessage.system("");
-
-            String text = message;
-            if (text.length() > 0)
-              text += "\n";
-
-            chatMessage = chatMessage.withUnsignedContent(
-                Component.literal(text).append(
-                    ComponentUtils.formatAndSortList(links, (Link link) -> {
-                      return Component.literal("[" + link.name + "]").withStyle((style) -> {
-                        try {
-                          return style.withColor(ChatFormatting.GREEN)
-                              .withClickEvent(new ClickEvent.OpenUrl(new URI(link.link)))
-                              .withHoverEvent(
-                                  new HoverEvent.ShowText(Component.translatable("chat.link.open")))
-                              .withInsertion(link.link);
-                        } catch (URISyntaxException e) {
-                          return style.withColor(ChatFormatting.GREEN)
-                              .withInsertion(link.link);
-                        }
-                      });
-                    })));
-
-          } else {
-            chatMessage = PlayerChatMessage.system(message);
-          }
-          final var fname = name;
-          final var fchatMessage = chatMessage;
+          final var fname = getMcUsername(chater);
+          final var fchatMessage = PlayerChatMessage.system("").withUnsignedContent(base);
           server.getPlayerList().getPlayers().forEach((serverplayer) -> {
             OutgoingChatMessage outgoingChatMessage = OutgoingChatMessage.create(fchatMessage);
 
@@ -161,6 +165,11 @@ public class Universal {
             serverplayer.sendChatMessage(outgoingChatMessage, false, bind);
           });
         });
+  }
+
+  public static void onChatEvent(ServerPlayer player, String message) {
+    Thread.startVirtualThread(
+        () -> Constants.core.sendChat(new Chater(player.getStringUUID(), player.getName().getString()), message));
   }
 
   public static void onDeathEvent(Player entity, DamageSource damageSource) {
@@ -220,6 +229,17 @@ public class Universal {
         });
   }
 
+  public static void onLaunch(Core core) {
+    Constants.LOGGER.info("Setting up handlers!");
+    core.addSetIconListener(Universal::setStatusIcon);
+    core.setChatReponder(Universal::broadcastChatMessage);
+    core.setInfoProvider(Universal::getInfo);
+  }
+
+  public static void setServer(MinecraftServer server) {
+    Universal.server = server;
+  }
+
   public static void onJoinEvent(Player player) {
     Thread.startVirtualThread(
         () -> Constants.core.sendJoin(new Chater(player.getStringUUID(), player.getName().getString())));
@@ -236,8 +256,18 @@ public class Universal {
         if (source instanceof ServerPlayer) {
           ServerPlayer player = (ServerPlayer) source;
           Constants.core.data.requestLink(player.getStringUUID(), (code) -> {
-            context.getSource().sendSystemMessage(Component.literal(
-                "Link code is <" + code + ">\nUse the /link command on the bot to complete linking"));
+            var comp = Component.empty()
+                .append(Component.literal("Link code is <"))
+                .append(Component.literal(code)
+                    .withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                        .withClickEvent(new ClickEvent.CopyToClipboard(code))
+                        .withHoverEvent(
+                            new HoverEvent.ShowText(Component.translatable("chat.copy.click")))
+
+                    ))
+                .append(Component.literal(">\nUse the /link command on the bot to complete linking"));
+
+            context.getSource().sendSystemMessage(comp);
           });
         }
         return 1;
