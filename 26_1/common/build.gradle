@@ -37,4 +37,5 @@ dependencies {
   annotationProcessor("io.github.llamalad7:mixinextras-common:${mixinextras_version}")
 
   compileOnly(project(":core"))
+  compileOnly 'net.luckperms:api:5.4'
 }

@@ -91,6 +91,11 @@ public class Universal {
     return chater.name;
   }
 
+  private static boolean IsOnline(String uuid) {
+    return server.getPlayerList().getPlayer(uuid) != null;
+
+  }
+
   private static InfoProvider.Result getInfo() {
     var info = new InfoProvider.Result();
     if (server == null)
@@ -234,6 +239,12 @@ public class Universal {
     core.addSetIconListener(Universal::setStatusIcon);
     core.setChatReponder(Universal::broadcastChatMessage);
     core.setInfoProvider(Universal::getInfo);
+    core.setIsOnline(Universal::IsOnline);
+    try {
+      LP.boot();
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
   }
 
   public static void setServer(MinecraftServer server) {
@@ -241,9 +252,7 @@ public class Universal {
   }
 
   public static void onJoinEvent(ServerPlayer player) {
-
     player.connection.suspendFlushing();
-
     Constants.core.checkLink(player.getStringUUID(), () -> {
       player.connection.resumeFlushing();
       Thread.startVirtualThread(

@@ -119,6 +119,12 @@ public class DiscordListener extends ListenerAdapter {
         String code = event.getOption("code").getAsString();
         if (parent.data.acceptLink(user, code)) {
           event.reply("Linked account!").setEphemeral(true).queue();
+
+          var uuid = parent.data.DiscordToMinecraft.get(user);
+
+          if (parent.onlineCheck.apply(uuid))
+            parent.memberCache.put(user, event.getMember());
+
         } else {
           event.reply("Could not link account. Run /linkme ingame").setEphemeral(true).queue();
         }

@@ -3,12 +3,16 @@ package za.net.hanro50.dischat.core;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -38,6 +42,8 @@ import java.awt.Color;
 public class Core {
   Consumer<Core> onLaunch;
 
+  Map<Long, Member> memberCache = new HashMap<>();
+
   JDA jda;
   public Storage data;
   public Config config;
@@ -50,6 +56,8 @@ public class Core {
   Consumer<Path> icon;
   ChatConsumer onRespond;
   InfoProvider infoProvider;
+
+  Function<String, Boolean> onlineCheck;
 
   public void loadCommands(BiFunction<String, String, CommandCreateAction> upsertCommand) {
     upsertCommand.apply("link", "link your account").addOption(OptionType.STRING, "code",
@@ -74,6 +82,10 @@ public class Core {
 
   public void setInfoProvider(InfoProvider infoProvider) {
     this.infoProvider = infoProvider;
+  }
+
+  public void setIsOnline(Function<String, Boolean> func) {
+    this.onlineCheck = func;
   }
 
   public Core(Path path, Consumer<Core> onLaunch) {
@@ -248,19 +260,30 @@ public class Core {
   }
 
   public void sendJoin(Chater chater) {
-    PersistentStatus.runUpdate();
-    if (!active || !config.joinMessages)
+    if (!active)
       return;
 
+    PersistentStatus.runUpdate();
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
+
+    if (chater.discordID != null)
+      guild.retrieveMemberById(chater.discordID).queue((member) -> memberCache.put(chater.discordID, member));
+
+    if (!config.joinMessages)
+      return;
+
     sendEmbed(chater, lexicon.retrieve(NamespaceContainer.literal("multiplayer.player.joined")), "#04ff00");
   }
 
   public void sendLeave(Chater chater) {
     PersistentStatus.runUpdate();
-    if (!active || !config.leaveMessages)
+    if (!active)
       return;
     chater.discordID = data.MinecraftToDiscord.get(chater.minecraftID);
+    if (chater.discordID != null)
+      memberCache.remove(chater.discordID);
+    if (!config.leaveMessages)
+      return;
     sendEmbed(chater, lexicon.retrieve(NamespaceContainer.literal("multiplayer.player.left")), "#ff0000");
   }
 
@@ -366,4 +389,49 @@ public class Core {
     success.run();
   }
 
+  public void getUserContext(String uuid, BiConsumer<String, String> consumer) {
+    var disscord_id = data.MinecraftToDiscord.get(uuid);
+
+    if (disscord_id == null) {
+      consumer.accept("discord.linked", "false");
+      consumer.accept("discord.in-server", "false");
+      consumer.accept("discord.owner", "false");
+      return;
+    }
+    consumer.accept("discord.linked", "true");
+    final var member = memberCache.get(disscord_id);
+    guild.retrieveMemberById(disscord_id).queue((m) -> memberCache.put(disscord_id, m));
+    if (member == null) {
+      consumer.accept("discord.in-server", "false");
+    } else {
+      consumer.accept("discord.owner", member.isOwner() ? "true" : "false");
+      for (var role : member.getUnsortedRoles()) {
+        consumer.accept("discord.role.name", role.getName());
+        consumer.accept("discord.role.id", role.getId());
+      }
+
+      for (var perm : member.getPermissions())
+        consumer.accept("discord.permission", perm.getName().toLowerCase());
+
+    }
+
+  }
+
+  public void getPotentialContexts(BiConsumer<String, String> consumer) {
+    consumer.accept("discord.linked", "false");
+    consumer.accept("discord.linked", "true");
+    consumer.accept("discord.in-server", "false");
+    consumer.accept("discord.in-server", "true");
+    consumer.accept("discord.owner", "false");
+    consumer.accept("discord.owner", "true");
+
+    for (var role : guild.getRoles()) {
+      consumer.accept("discord.role", role.getName());
+    }
+
+    for (var perm : Permission.values()) {
+      consumer.accept("discord.permission", perm.getName().toLowerCase());
+    }
+
+  }
 }
