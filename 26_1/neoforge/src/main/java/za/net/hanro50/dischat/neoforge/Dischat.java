@@ -2,6 +2,7 @@ package za.net.hanro50.dischat.neoforge;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -63,7 +64,7 @@ public class Dischat {
 
   @SubscribeEvent
   public void onJoin(PlayerEvent.PlayerLoggedInEvent event) {
-    Universal.onJoinEvent(event.getEntity());
+    Universal.onJoinEvent((ServerPlayer) event.getEntity());
   }
 
   @SubscribeEvent

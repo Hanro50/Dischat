@@ -12,36 +12,16 @@ allprojects {
             minecraft_version      : minecraft_version,
             minecraft_version_range: minecraft_version_range,
             neo_version            : neo_version,
-            mod_id                 : mod_id,
-            mod_name               : mod_name,
-            mod_license            : mod_license,
-            mod_version            : mod_version,
-            mod_authors            : mod_authors,
-            mod_description        : mod_description,
             fabric_loader_version  : fabric_loader_version,
             fabric_api_version     : fabric_api_version,
             loader_version_range   : loader_version_range,
 
     ]
     inputs.properties replaceProperties
-    filesMatching(['META-INF/mods.toml', 'pack.mcmeta','META-INF/neoforge.mods.toml',"fabric.mod.json"]) {
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta','META-INF/neoforge.mods.toml',"fabric.mod.json","version.txt"]) {
         expand replaceProperties
     }
   }
-
-  tasks.named('jar', Jar) {
-      manifest {
-          attributes([
-              'Specification-Title'     : mod_id,
-              'Specification-Vendor'    : mod_authors,
-              'Specification-Version'   : '1', // We are version 1 of ourselves
-              'Implementation-Title'    : project.name,
-              'Implementation-Vendor'   : mod_authors
-          ])
-  //        attributes['MixinConfigs'] = "${mod_id}.mixins.json"
-      }
-  }
-
 }
 
 java {

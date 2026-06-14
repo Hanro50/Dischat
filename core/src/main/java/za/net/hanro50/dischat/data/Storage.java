@@ -6,7 +6,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.google.gson.annotations.Expose;
@@ -23,6 +25,9 @@ public final class Storage {
   public HashMap<Long, String> DiscordToMinecraft = new HashMap<>();
   public HashMap<String, Long> MinecraftToDiscord = new HashMap<>();
   public HashMap<String, String> LinkPlayer = new HashMap<>();
+
+  @Expose
+  public List<String> LinkWhiteList = new ArrayList<>();
   protected File file;
 
   public Storage() {

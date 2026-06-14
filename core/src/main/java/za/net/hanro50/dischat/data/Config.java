@@ -38,6 +38,8 @@ public class Config {
   @Expose
   public float statusUpdateInterval = 62.512f;
   @Expose
+  public boolean forceLink = false;
+  @Expose
   String DO_NOT_CHANGE_VERSION = Constants.VERSION;
 
   public static Config deserialize(File file) {

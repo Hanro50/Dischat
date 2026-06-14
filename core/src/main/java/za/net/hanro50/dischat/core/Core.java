@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ApplicationInfo;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Webhook;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -42,6 +44,7 @@ public class Core {
   boolean active = false;
   ApplicationInfo info;
   TextChannel channel;
+  Guild guild;
   String webhookurl;
   Lexicon lexicon;
   Consumer<Path> icon;
@@ -148,6 +151,8 @@ public class Core {
       data.save();
       return;
     }
+
+    guild = channel.getGuild();
 
     List<Webhook> hooks = channel.retrieveWebhooks().complete();
     for (Webhook hook : hooks) {
@@ -331,6 +336,34 @@ public class Core {
       }
       Constants.LOGGER.info("All connections closed!");
     }
+  }
+
+  public void checkLink(String uuid, Runnable success, Consumer<String> onfail) {
+    if (!config.forceLink) {
+      success.run();
+      return;
+    }
+
+    if (data.LinkWhiteList.contains(uuid)) {
+      success.run();
+      return;
+    }
+
+    var discordID = data.MinecraftToDiscord.get(uuid);
+
+    if (discordID == null) {
+      data.requestLink(uuid, onfail);
+      return;
+    }
+
+    if (guild != null) {
+      guild.retrieveMemberById(discordID).queue((member) -> success.run(), (failure) -> onfail.accept("NOT_MEMBER"));
+      return;
+    }
+    if (config.forceLink)
+      onfail.accept("SERVER_STARTING");
+
+    success.run();
   }
 
 }

@@ -81,7 +81,7 @@ public class Constants {
   }
 
   static private String getJarVersion() {
-    try (InputStream is = Constants.class.getResourceAsStream("/version")) {
+    try (InputStream is = Constants.class.getResourceAsStream("/version.txt")) {
       try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
         return reader.lines().collect(Collectors.joining("\n"));
       }

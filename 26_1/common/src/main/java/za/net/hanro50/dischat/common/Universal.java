@@ -240,9 +240,34 @@ public class Universal {
     Universal.server = server;
   }
 
-  public static void onJoinEvent(Player player) {
-    Thread.startVirtualThread(
-        () -> Constants.core.sendJoin(new Chater(player.getStringUUID(), player.getName().getString())));
+  public static void onJoinEvent(ServerPlayer player) {
+
+    player.connection.suspendFlushing();
+
+    Constants.core.checkLink(player.getStringUUID(), () -> {
+      player.connection.resumeFlushing();
+      Thread.startVirtualThread(
+          () -> Constants.core.sendJoin(new Chater(player.getStringUUID(), player.getName().getString())));
+    }, (code) -> {
+      player.connection.resumeFlushing();
+      if (code.equals("SERVER_STARTING"))
+        player.connection.disconnect(Component.literal("Waiting for discord"));
+      if (code.equals("NOT_MEMBER"))
+        player.connection.disconnect(Component.literal("You're not a member of the discord server running this bot."));
+
+      var comp = Component.empty()
+          .append(Component.literal("Link code is <"))
+          .append(Component.literal(code)
+              .withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                  .withClickEvent(new ClickEvent.CopyToClipboard(code))
+                  .withHoverEvent(
+                      new HoverEvent.ShowText(Component.translatable("chat.copy.click")))
+
+              ))
+          .append(Component.literal(">\nUse the /link command on the bot to complete linking"));
+      player.connection.disconnect(comp);
+    });
+
   }
 
   public static void onLeaveEvent(Player player) {
