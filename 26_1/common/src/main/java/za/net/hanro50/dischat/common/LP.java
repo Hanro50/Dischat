@@ -1,8 +1,5 @@
 package za.net.hanro50.dischat.common;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.context.ContextCalculator;
@@ -30,8 +27,6 @@ public class LP implements ContextCalculator<ServerPlayer> {
   public ContextSet estimatePotentialContexts() {
     ImmutableContextSet.Builder builder = ImmutableContextSet.builder();
     Constants.core.getPotentialContexts(builder::add);
-
     return builder.build();
-
   }
 }
