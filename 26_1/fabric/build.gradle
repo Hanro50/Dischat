@@ -49,6 +49,9 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
   compileOnly 'net.luckperms:api:5.4'
+
+
+  implementation("net.fabricmc:fabric-language-kotlin:1.13.12+kotlin.2.4.0")
 }
 
 processResources {
@@ -98,7 +101,6 @@ publishing {
 tasks.withType(ProcessResources).configureEach {
   var replaceProperties = [
             minecraft_version      : minecraft_version,
-            minecraft_version_range: minecraft_version_range,
             neo_version            : neo_version,
             fabric_loader_version  : fabric_loader_version,
             fabric_api_version     : fabric_api_version,

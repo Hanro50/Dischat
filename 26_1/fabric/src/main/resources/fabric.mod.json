@@ -25,7 +25,8 @@
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
     "java": ">=25",
-    "fabric-api": ">=${fabric_api_version}"
+    "fabric-api": ">=${fabric_api_version}",
+    "fabric-language-kotlin": "*"
   },
   "suggests":{
     "luckperms":"*"

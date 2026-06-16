@@ -17,14 +17,17 @@ dependencies {
 }
 
 configurations {
-  shadow_forge {
+  shadow_forge_v1 {
 		extendsFrom shadow
     tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
       relocate 'com.google.errorprone', "internal.${project.mod_id}.com.google.errorprone"
-      relocate 'com.fasterxml.jackson', "internal.${project.mod_id}.com.fasterxml.jackson"
-      relocate 'kotlin', "internal.${project.mod_id}.kotlin"
+      exclude 'META-INF/services/com.fasterxml.jackson.core.*'
+      exclude 'module-info.class'
+      exclude 'META-INF/versions/**'
+      exclude 'kotlin/**'
       dependencies {
         exclude(dependency(":slf4j-api"))
+        exclude(dependency(":jackson"))
         exclude(dependency(":gson"))
       }
     }

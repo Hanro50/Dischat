@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -52,6 +53,8 @@ import za.net.hanro50.dischat.mixin.MinecraftServerAccessor;
 public class Universal {
   static MinecraftServer server;
 
+  static byte[] icon;
+
   private static void setStatusIcon(Path path) {
     try {
       BufferedImage bufferedImage = ImageIO.read(path.toFile());
@@ -69,6 +72,13 @@ public class Universal {
 
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       ImageIO.write(outputImage, "PNG", byteArrayOutputStream);
+
+      Constants.LOGGER.info("SETTING ICON");
+
+      if (server == null) {
+        icon = byteArrayOutputStream.toByteArray();
+        return;
+      }
 
       ((MinecraftServerAccessor) server)
           .dischat$setStatusIcon(new ServerStatus.Favicon(byteArrayOutputStream.toByteArray()));
@@ -248,7 +258,14 @@ public class Universal {
   }
 
   public static void setServer(MinecraftServer server) {
+    Constants.LOGGER.info("STARTED!");
     Universal.server = server;
+
+    if (icon != null) {
+      ((MinecraftServerAccessor) server)
+          .dischat$setStatusIcon(new ServerStatus.Favicon(icon));
+      server.invalidateStatus();
+    }
   }
 
   public static void onJoinEvent(ServerPlayer player) {
