@@ -9,7 +9,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
