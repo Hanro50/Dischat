@@ -253,7 +253,7 @@ public class Universal {
     try {
       LP.boot();
     } catch (Throwable e) {
-      e.printStackTrace();
+      Constants.LOGGER.info("Could not load LP");
     }
   }
 
